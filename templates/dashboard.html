@@ -1,0 +1,239 @@
+{% extends "dashboard_base.html" %}
+
+{% block dashboard_content %}
+
+<!-- AI Greeting Banner -->
+<div class="ai-greeting animate-fade-in">
+    <h2>Good Evening, Keshav 👋</h2>
+    <p class="text-sm text-muted">You're 58 days from internship season. Stay consistent.</p>
+    <div class="greeting-insights">
+        <div class="insight-chip"><i class="fas fa-arrow-down text-danger"></i> DSA consistency dropped 12% this week</div>
+        <div class="insight-chip"><i class="fas fa-lightbulb text-warning"></i> Recommended: DBMS revision</div>
+        <div class="insight-chip"><i class="fas fa-calendar text-primary"></i> Google interview in 3 days</div>
+    </div>
+</div>
+
+<!-- Main 3-Column Layout: Feed | Analytics | Insights -->
+<div class="dashboard-grid">
+
+    <!-- LEFT: Activity Feed -->
+    <div class="col-span-3">
+        <div class="card animate-fade-in-up delay-100" style="padding: var(--space-3);">
+            <div class="card-header" style="margin-bottom: var(--space-3);">
+                <span class="card-title">Activity</span>
+                <span class="text-xs text-faint">Today</span>
+            </div>
+            <div class="activity-feed">
+                <div class="activity-item">
+                    <div class="activity-dot" style="background: var(--success);"></div>
+                    <div>
+                        <div class="activity-text">Solved <strong>Two Sum</strong> on LeetCode</div>
+                        <div class="activity-time">2 hours ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-dot" style="background: var(--primary);"></div>
+                    <div>
+                        <div class="activity-text">Applied to <strong>Amazon SDE</strong></div>
+                        <div class="activity-time">5 hours ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-dot" style="background: var(--warning);"></div>
+                    <div>
+                        <div class="activity-text">Resume score updated: <strong>92%</strong></div>
+                        <div class="activity-time">Yesterday</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-dot" style="background: var(--purple);"></div>
+                    <div>
+                        <div class="activity-text">Completed <strong>Trees module</strong></div>
+                        <div class="activity-time">Yesterday</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-dot" style="background: var(--success);"></div>
+                    <div>
+                        <div class="activity-text">Mock interview score: <strong>8/10</strong></div>
+                        <div class="activity-time">2 days ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-dot" style="background: var(--primary);"></div>
+                    <div>
+                        <div class="activity-text">Applied to <strong>Netflix</strong></div>
+                        <div class="activity-time">3 days ago</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Streak Widget -->
+        <div class="card animate-fade-in-up delay-200 mt-4" style="padding: var(--space-4); text-align: center;">
+            <div style="font-size: 2.5rem; line-height: 1;">🔥</div>
+            <div class="stat-value mt-2">14</div>
+            <div class="stat-label">Day Streak</div>
+            <div class="flex justify-center gap-1 mt-3">
+                {% for i in range(7) %}
+                <div style="width: 10px; height: 10px; border-radius: 2px; background: {% if i < 5 %}var(--success){% else %}var(--surface-4){% endif %};"></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- CENTER: Main Analytics -->
+    <div class="col-span-5">
+        <!-- Stats Row -->
+        <div class="grid grid-cols-3 gap-3 mb-4 animate-fade-in-up delay-100">
+            <div class="card" style="padding: var(--space-3);">
+                <div class="stat-label mb-1">Applications</div>
+                <div class="stat-value">28</div>
+                <div class="text-xs mt-1"><span class="text-success">+3</span> <span class="text-faint">this week</span></div>
+            </div>
+            <div class="card" style="padding: var(--space-3);">
+                <div class="stat-label mb-1">Problems</div>
+                <div class="stat-value">156</div>
+                <div class="text-xs mt-1"><span class="text-success">+12</span> <span class="text-faint">this week</span></div>
+            </div>
+            <div class="card" style="padding: var(--space-3);">
+                <div class="stat-label mb-1">ATS Score</div>
+                <div class="stat-value text-success">92%</div>
+                <div class="text-xs mt-1"><span class="text-success">+5</span> <span class="text-faint">vs last</span></div>
+            </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="card animate-fade-in-up delay-200">
+            <div class="card-header">
+                <span class="card-title">Coding Activity</span>
+                <select class="input-field" style="width: auto; padding: 3px 28px 3px 8px; font-size: 0.75rem;">
+                    <option>This Week</option>
+                    <option>Last Week</option>
+                    <option>This Month</option>
+                </select>
+            </div>
+            <div class="card-body" style="height: 220px;">
+                <canvas id="activityChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Schedule & Progress -->
+        <div class="grid grid-cols-2 gap-4 mt-4">
+            <div class="card animate-fade-in-up delay-300" style="padding: var(--space-3);">
+                <div class="card-header" style="margin-bottom: var(--space-3);">
+                    <span class="card-title">Upcoming</span>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex items-center gap-3 p-2 rounded" style="background: var(--surface-0);">
+                        <div class="avatar" style="width: 32px; height: 32px; background: var(--surface-4); color: var(--text-main); font-size: 0.65rem;">G</div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-medium" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Google — SWE Intern</div>
+                            <div class="text-xs text-faint">Technical Round 1</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs font-semibold">Tomorrow</div>
+                            <div class="text-xs text-primary">10:00 AM</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 p-2 rounded" style="background: var(--surface-0);">
+                        <div class="avatar" style="width: 32px; height: 32px; background: var(--surface-4); color: var(--text-main); font-size: 0.65rem;">M</div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-medium" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Meta — Frontend Intern</div>
+                            <div class="text-xs text-faint">Online Assessment</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs font-semibold">Oct 24</div>
+                            <div class="text-xs text-primary">Anytime</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card animate-fade-in-up delay-400" style="padding: var(--space-3);">
+                <div class="card-header" style="margin-bottom: var(--space-3);">
+                    <span class="card-title">Progress</span>
+                    <span class="badge badge-primary" style="font-size: 0.6rem;">SWE</span>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <div class="flex justify-between text-xs mb-1"><span class="text-secondary">Data Structures</span><span class="text-primary font-medium">85%</span></div>
+                        <div style="height: 4px; background: var(--surface-0); border-radius: 2px;"><div style="height: 4px; width: 85%; background: var(--primary); border-radius: 2px;"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs mb-1"><span class="text-secondary">System Design</span><span class="text-warning font-medium">40%</span></div>
+                        <div style="height: 4px; background: var(--surface-0); border-radius: 2px;"><div style="height: 4px; width: 40%; background: var(--warning); border-radius: 2px;"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs mb-1"><span class="text-secondary">Behavioral</span><span class="text-success font-medium">90%</span></div>
+                        <div style="height: 4px; background: var(--surface-0); border-radius: 2px;"><div style="height: 4px; width: 90%; background: var(--success); border-radius: 2px;"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT: AI Insights Panel -->
+    <div class="col-span-4">
+        <div class="card card-elevated animate-fade-in-up delay-150" style="position: relative; overflow: hidden;">
+            <div style="position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--primary), var(--purple)); background-size: 200% 200%; animation: gradientSweep 6s ease infinite;"></div>
+            <div class="card-header">
+                <span class="card-title"><i class="fas fa-sparkles" style="margin-right: 6px; color: var(--primary);"></i>AI Insights</span>
+                <span class="badge badge-purple" style="font-size: 0.6rem;">Live</span>
+            </div>
+
+            <div class="space-y-3">
+                <!-- Insight Cards -->
+                <div class="p-3 rounded-lg" style="background: var(--surface-0); border-left: 3px solid var(--primary);">
+                    <div class="text-sm font-medium mb-1">Focus: Dynamic Programming</div>
+                    <div class="text-xs text-muted leading-relaxed">You've struggled with 3 recent DP problems. I recommend the Knapsack and Longest Subsequence patterns.</div>
+                    <a href="/coding" class="text-xs text-primary font-medium mt-2 block">Practice DP →</a>
+                </div>
+
+                <div class="p-3 rounded-lg" style="background: var(--surface-0); border-left: 3px solid var(--success);">
+                    <div class="text-sm font-medium mb-1">Google OA in 3 days</div>
+                    <div class="text-xs text-muted leading-relaxed">I've prepared a targeted 5-problem mock test matching Google's patterns.</div>
+                    <a href="/interviews" class="text-xs text-success font-medium mt-2 block">Take Mock Test →</a>
+                </div>
+
+                <div class="p-3 rounded-lg" style="background: var(--surface-0); border-left: 3px solid var(--warning);">
+                    <div class="text-sm font-medium mb-1">Resume Improvement</div>
+                    <div class="text-xs text-muted leading-relaxed">Add "Docker" and "Kubernetes" to your skills — they appear in 72% of your target roles.</div>
+                    <a href="/resume" class="text-xs text-warning font-medium mt-2 block">Update Resume →</a>
+                </div>
+
+                <div class="p-3 rounded-lg" style="background: var(--surface-0); border-left: 3px solid var(--purple);">
+                    <div class="text-sm font-medium mb-1">Weekly Momentum</div>
+                    <div class="text-xs text-muted leading-relaxed">You're in the top 15% of active users this week. Keep the momentum.</div>
+                </div>
+            </div>
+
+            <a href="/assistant" class="btn btn-primary w-full mt-4"><i class="fas fa-robot"></i> Chat with AI</a>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card animate-fade-in-up delay-300 mt-4" style="padding: var(--space-3);">
+            <div class="card-header" style="margin-bottom: var(--space-3);">
+                <span class="card-title">Quick Actions</span>
+            </div>
+            <div class="space-y-1">
+                <a href="/applications" class="flex items-center gap-3 p-2 rounded text-sm text-secondary transition-colors" style="text-decoration: none;" onmouseenter="this.style.background='var(--surface-3)'" onmouseleave="this.style.background='transparent'">
+                    <i class="fas fa-plus text-faint" style="width: 16px; text-align: center; font-size: 0.75rem;"></i> Add Application
+                </a>
+                <a href="/resume" class="flex items-center gap-3 p-2 rounded text-sm text-secondary transition-colors" style="text-decoration: none;" onmouseenter="this.style.background='var(--surface-3)'" onmouseleave="this.style.background='transparent'">
+                    <i class="fas fa-upload text-faint" style="width: 16px; text-align: center; font-size: 0.75rem;"></i> Upload Resume
+                </a>
+                <a href="/interviews" class="flex items-center gap-3 p-2 rounded text-sm text-secondary transition-colors" style="text-decoration: none;" onmouseenter="this.style.background='var(--surface-3)'" onmouseleave="this.style.background='transparent'">
+                    <i class="fas fa-play text-faint" style="width: 16px; text-align: center; font-size: 0.75rem;"></i> Start Interview
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block dashboard_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/static/js/charts.js"></script>
+{% endblock %}

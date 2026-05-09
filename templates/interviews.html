@@ -1,0 +1,87 @@
+{% extends "dashboard_base.html" %}
+
+{% block dashboard_content %}
+<div class="page-header">
+    <div>
+        <h1>Mock Interviews</h1>
+        <p>Practice with AI and receive detailed feedback.</p>
+    </div>
+    <button class="btn btn-primary" data-action="start-interview"><i class="fas fa-play"></i> Start Interview</button>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Active Interview -->
+    <div class="card col-span-8 flex flex-col animate-fade-in-up" style="min-height:480px;">
+        <div class="flex justify-between items-center pb-3 mb-3 border-b">
+            <div class="flex items-center gap-3">
+                <div class="avatar" style="background:var(--primary);">AI</div>
+                <div>
+                    <div class="text-sm font-semibold">Technical: System Design</div>
+                    <div class="text-xs text-faint">Interviewer: Alex (Senior SWE)</div>
+                </div>
+            </div>
+            <div class="font-mono text-primary font-bold" id="interviewTimer">45:00</div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto mb-3 space-y-4" id="interviewThread">
+            <div class="flex gap-3">
+                <div class="avatar" style="width:28px;height:28px;background:var(--primary);font-size:0.55rem;">AI</div>
+                <div class="p-3 rounded-lg text-sm flex-1" style="background:var(--surface-0);">
+                    Hello! Today we're designing a distributed rate limiter. What key features and constraints would you consider?
+                </div>
+            </div>
+            <div class="flex gap-3 flex-row-reverse">
+                <div class="avatar" style="width:28px;height:28px;">KS</div>
+                <div class="p-3 rounded-lg text-sm flex-1" style="background:var(--primary-muted);border:1px solid rgba(47,129,247,0.3);">
+                    I would clarify if we're designing client-side or server-side, the expected scale, and if it needs to work across a distributed system.
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <div class="avatar" style="width:28px;height:28px;background:var(--primary);font-size:0.55rem;">AI</div>
+                <div class="p-3 rounded-lg text-sm flex-1" style="background:var(--surface-0);">
+                    Good questions. Let's assume server-side, distributed, and 10M RPS globally. Walk me through your high-level design.
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-auto">
+            <div class="relative">
+                <textarea class="input-field w-full" id="interviewInput" rows="2" placeholder="Type your response..." style="resize:none;"></textarea>
+                <div class="absolute flex gap-2" style="right:8px;top:8px;">
+                    <button class="icon-btn text-primary" type="button" data-action="interview-send"><i class="fas fa-paper-plane"></i></button>
+                    <button class="icon-btn text-danger" type="button" data-action="mic-toggle" aria-pressed="false"><i class="fas fa-microphone"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Past Interviews -->
+    <div class="card col-span-4 animate-fade-in-up delay-100">
+        <div class="card-header"><span class="card-title">Past Interviews</span></div>
+        <div class="card-body space-y-3">
+            <div class="p-3 rounded-lg" style="background:var(--surface-0);">
+                <div class="flex justify-between items-start mb-2">
+                    <div class="text-sm font-medium">Behavioral Round</div>
+                    <span class="text-xs text-faint">2d ago</span>
+                </div>
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="badge badge-success">8/10</span>
+                    <span class="badge badge-neutral">Amazon</span>
+                </div>
+                <a href="/interviews" class="text-primary text-xs font-medium" data-action="view-report" data-report="Behavioral Round">View Report →</a>
+            </div>
+            <div class="p-3 rounded-lg" style="background:var(--surface-0);">
+                <div class="flex justify-between items-start mb-2">
+                    <div class="text-sm font-medium">DSA: Trees & Graphs</div>
+                    <span class="text-xs text-faint">1w ago</span>
+                </div>
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="badge badge-primary">6/10</span>
+                    <span class="badge badge-neutral">Google</span>
+                </div>
+                <a href="/interviews" class="text-primary text-xs font-medium" data-action="view-report" data-report="DSA: Trees & Graphs">View Report →</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

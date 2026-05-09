@@ -1,0 +1,84 @@
+{% extends "dashboard_base.html" %}
+
+{% block dashboard_content %}
+<div class="page-header">
+    <div>
+        <h1>AI Roadmap</h1>
+        <p>Target: Software Engineer Intern (Backend Focus)</p>
+    </div>
+    <button class="btn btn-primary" data-action="regenerate-roadmap"><i class="fas fa-magic"></i> Regenerate</button>
+</div>
+
+<div class="dashboard-grid mb-5">
+    <div class="card col-span-12 animate-fade-in-up">
+        <div class="flex justify-between items-center mb-3">
+            <div>
+                <h3 class="card-title">Overall Progress</h3>
+                <div class="text-xs text-faint mt-1">On track for target timeline (Oct 2026)</div>
+            </div>
+            <div class="text-xl font-bold text-primary" id="roadmapProgressText">35%</div>
+        </div>
+        <div style="height:5px;background:var(--surface-0);border-radius:3px;">
+            <div id="roadmapProgressBar" style="height:5px;width:35%;background:var(--primary);border-radius:3px;transition:width 1s ease;"></div>
+        </div>
+    </div>
+</div>
+
+<div class="relative animate-fade-in-up delay-100" style="padding-left:24px;border-left:2px solid var(--border-muted);">
+    <!-- Phase 1 -->
+    <div class="relative mb-5">
+        <div class="absolute flex items-center justify-center" style="left:-33px;top:4px;width:16px;height:16px;border-radius:50%;background:var(--success);border:2px solid var(--surface-1);">
+            <i class="fas fa-check" style="font-size:7px;color:white;"></i>
+        </div>
+        <div class="card" style="border-color:rgba(63,185,80,0.3);">
+            <div class="flex justify-between items-center mb-2">
+                <h4 class="font-semibold text-success">Phase 1: Foundation (Weeks 1-2)</h4>
+                <span class="badge badge-success">Completed</span>
+            </div>
+            <p class="text-sm text-muted mb-3">Arrays, Strings, Hash Maps, Two Pointers</p>
+            <div class="flex gap-2">
+                <span class="badge badge-neutral">15 Easy</span>
+                <span class="badge badge-neutral">5 Medium</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="relative mb-5">
+        <div class="absolute" style="left:-33px;top:4px;width:16px;height:16px;border-radius:50%;background:var(--primary);border:2px solid var(--surface-1);"></div>
+        <div class="card" style="border-color:var(--primary);">
+            <div class="flex justify-between items-center mb-2">
+                <h4 class="font-semibold text-primary">Phase 2: Core Algorithms (Weeks 3-5)</h4>
+                <span class="badge badge-primary">In Progress</span>
+            </div>
+            <p class="text-sm text-muted mb-3">Sliding Window, Binary Search, Linked Lists, Trees</p>
+            <div class="space-y-3 pt-3 border-t">
+                <label class="flex items-center gap-3 text-sm cursor-pointer">
+                    <input type="checkbox" class="roadmap-task" checked style="accent-color:var(--primary);">
+                    <span class="line-through text-muted">Master Binary Search Templates</span>
+                </label>
+                <label class="flex items-center gap-3 text-sm cursor-pointer">
+                    <input type="checkbox" class="roadmap-task" style="accent-color:var(--primary);">
+                    <span>Solve 10 Tree Traversal Problems</span>
+                </label>
+                <label class="flex items-center gap-3 text-sm cursor-pointer">
+                    <input type="checkbox" class="roadmap-task" style="accent-color:var(--primary);">
+                    <span>System Design: URL Shortener</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phase 3 -->
+    <div class="relative opacity-40">
+        <div class="absolute" style="left:-33px;top:4px;width:16px;height:16px;border-radius:50%;background:var(--surface-4);border:2px solid var(--surface-1);"></div>
+        <div class="card">
+            <div class="flex justify-between items-center mb-2">
+                <h4 class="font-semibold">Phase 3: Advanced Topics (Weeks 6-8)</h4>
+                <span class="badge badge-neutral">Locked</span>
+            </div>
+            <p class="text-sm text-muted">Dynamic Programming, Graphs, Backtracking</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

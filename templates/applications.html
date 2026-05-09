@@ -1,0 +1,99 @@
+{% extends "dashboard_base.html" %}
+
+{% block dashboard_content %}
+<div class="page-header">
+    <div>
+        <h1>Application Tracker</h1>
+        <p>Track internship applications from first apply to final outcome.</p>
+    </div>
+    <button class="btn btn-primary" type="button" data-action="show-application-form"><i class="fas fa-plus"></i> Add Application</button>
+</div>
+
+<div class="card mb-5" id="applicationFormCard" hidden>
+    <div class="card-header">
+        <span class="card-title">New Application</span>
+    </div>
+    <form class="card-body grid grid-cols-2 gap-4" id="applicationForm">
+        <div class="input-group" style="margin-bottom:0;">
+            <label class="input-label" for="applicationCompany">Company</label>
+            <input class="input-field" id="applicationCompany" name="company" placeholder="Amazon" required>
+        </div>
+        <div class="input-group" style="margin-bottom:0;">
+            <label class="input-label" for="applicationRole">Role</label>
+            <input class="input-field" id="applicationRole" name="role" placeholder="SDE Intern - Summer 2027" required>
+        </div>
+        <div class="input-group" style="margin-bottom:0;">
+            <label class="input-label" for="applicationStatus">Stage</label>
+            <select class="input-field" id="applicationStatus" name="status">
+                <option value="applied">Applied</option>
+                <option value="oa">Online Assessment</option>
+                <option value="interview">Interview</option>
+                <option value="offer">Offer</option>
+                <option value="rejected">Rejected</option>
+            </select>
+        </div>
+        <div class="input-group" style="margin-bottom:0;">
+            <label class="input-label" for="applicationTag">Tag</label>
+            <input class="input-field" id="applicationTag" name="tag" placeholder="Backend, Referral, HackerRank">
+        </div>
+        <div class="input-group" style="margin-bottom:0;">
+            <label class="input-label" for="applicationSource">Source</label>
+            <input class="input-field" id="applicationSource" name="source" placeholder="LinkedIn, referral, careers page">
+        </div>
+        <div class="input-group" style="margin-bottom:0;">
+            <label class="input-label" for="applicationDeadline">Deadline</label>
+            <input class="input-field" id="applicationDeadline" name="deadline" type="date">
+        </div>
+        <div class="input-group col-span-2" style="margin-bottom:0;">
+            <label class="input-label" for="applicationNotes">Notes</label>
+            <textarea class="input-field" id="applicationNotes" name="notes" rows="3" placeholder="Recruiter notes, OA details, interview schedule..." style="resize:vertical;"></textarea>
+        </div>
+        <div class="col-span-2 flex justify-end gap-3">
+            <button class="btn btn-secondary" type="button" data-action="hide-application-form">Cancel</button>
+            <button class="btn btn-primary" type="submit">Save Application</button>
+        </div>
+    </form>
+</div>
+
+<div class="kanban-board" id="applicationsBoard">
+    <div class="kanban-column" data-application-status="applied">
+        <div class="kanban-header">
+            <span class="flex items-center gap-2"><span style="width:8px;height:8px;border-radius:50%;background:var(--text-faint);"></span> Applied</span>
+            <span class="text-xs text-faint" data-application-count="applied" style="margin-left:auto;">0</span>
+        </div>
+        <div class="kanban-cards" data-application-list="applied"></div>
+    </div>
+
+    <div class="kanban-column" data-application-status="oa">
+        <div class="kanban-header">
+            <span class="flex items-center gap-2"><span style="width:8px;height:8px;border-radius:50%;background:var(--primary);"></span> <span class="text-primary">Online Assessment</span></span>
+            <span class="text-xs text-faint" data-application-count="oa" style="margin-left:auto;">0</span>
+        </div>
+        <div class="kanban-cards" data-application-list="oa"></div>
+    </div>
+
+    <div class="kanban-column" data-application-status="interview">
+        <div class="kanban-header">
+            <span class="flex items-center gap-2"><span style="width:8px;height:8px;border-radius:50%;background:var(--success);"></span> <span class="text-success">Interview</span></span>
+            <span class="text-xs text-faint" data-application-count="interview" style="margin-left:auto;">0</span>
+        </div>
+        <div class="kanban-cards" data-application-list="interview"></div>
+    </div>
+
+    <div class="kanban-column" data-application-status="offer">
+        <div class="kanban-header">
+            <span class="flex items-center gap-2"><span style="width:8px;height:8px;border-radius:50%;background:var(--success);"></span> Offer</span>
+            <span class="text-xs text-faint" data-application-count="offer" style="margin-left:auto;">0</span>
+        </div>
+        <div class="kanban-cards" data-application-list="offer"></div>
+    </div>
+
+    <div class="kanban-column" data-application-status="rejected">
+        <div class="kanban-header">
+            <span class="flex items-center gap-2"><span style="width:8px;height:8px;border-radius:50%;background:var(--danger);"></span> <span class="text-danger">Rejected</span></span>
+            <span class="text-xs text-faint" data-application-count="rejected" style="margin-left:auto;">0</span>
+        </div>
+        <div class="kanban-cards" data-application-list="rejected"></div>
+    </div>
+</div>
+{% endblock %}

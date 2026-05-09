@@ -1,0 +1,145 @@
+{% extends "dashboard_base.html" %}
+
+{% block dashboard_content %}
+<div class="page-header">
+    <div>
+        <h1>Coding Analytics</h1>
+        <p>Track your problem-solving performance.</p>
+    </div>
+    <button class="btn btn-secondary" id="syncLeetcodeBtn"><i class="fas fa-sync-alt" id="syncIcon"></i> <span id="syncText">Sync LeetCode</span></button>
+</div>
+
+<div class="dashboard-grid mb-5">
+    <!-- Stats Ring -->
+    <div class="card col-span-4 animate-fade-in-up">
+        <div class="flex flex-col items-center text-center p-4">
+            <div class="relative flex items-center justify-center mb-3" style="width:100px;height:100px;">
+                <svg viewBox="0 0 100 100" style="transform:rotate(-90deg);width:100px;height:100px;">
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="var(--surface-0)" stroke-width="5"></circle>
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="var(--success)" stroke-width="5" stroke-dasharray="264" stroke-dashoffset="21" style="transition:stroke-dashoffset 1s ease;"></circle>
+                </svg>
+                <div class="absolute flex flex-col items-center">
+                    <span class="text-2xl font-bold" id="solvedCount">156</span>
+                    <span class="text-xs text-faint uppercase tracking-wider">Solved</span>
+                </div>
+            </div>
+            <p class="text-xs text-muted mb-4">Top 15% globally</p>
+            <div class="w-full space-y-3 text-left">
+                <div>
+                    <div class="flex justify-between text-xs"><span class="text-success">Easy</span><span>80</span></div>
+                    <div style="height:4px;background:var(--surface-0);border-radius:2px;margin-top:4px;"><div style="height:4px;width:50%;background:var(--success);border-radius:2px;"></div></div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs"><span class="text-warning">Medium</span><span>65</span></div>
+                    <div style="height:4px;background:var(--surface-0);border-radius:2px;margin-top:4px;"><div style="height:4px;width:40%;background:var(--warning);border-radius:2px;"></div></div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs"><span class="text-danger">Hard</span><span>11</span></div>
+                    <div style="height:4px;background:var(--surface-0);border-radius:2px;margin-top:4px;"><div style="height:4px;width:10%;background:var(--danger);border-radius:2px;"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Skills Radar -->
+    <div class="card col-span-8 animate-fade-in-up delay-100">
+        <div class="card-header"><span class="card-title">Topic Proficiency</span></div>
+        <div class="card-body" style="height:280px;"><canvas id="skillsChart"></canvas></div>
+    </div>
+
+    <!-- Heatmap -->
+    <div class="card col-span-12 animate-fade-in-up delay-200">
+        <div class="card-header">
+            <span class="card-title">Submission Heatmap</span>
+            <span class="text-xs text-muted">14 Day Streak 🔥</span>
+        </div>
+        <div class="card-body">
+            <div class="flex gap-1 overflow-x-auto pb-2">
+                {% for i in range(52) %}
+                <div class="flex flex-col gap-1">
+                    {% for j in range(7) %}
+                    <div style="width:10px;height:10px;border-radius:2px;background:{% if (i*7+j) % 5 == 0 %}var(--success){% elif (i*7+j) % 3 == 0 %}rgba(63,185,80,0.3){% elif (i*7+j) % 7 == 0 %}var(--success){% else %}var(--surface-0){% endif %};"></div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+            <div class="flex justify-between text-xs text-faint mt-2">
+                <span>Oct</span><span>Nov</span><span>Dec</span><span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block dashboard_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/static/js/charts.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const syncBtn = document.getElementById('syncLeetcodeBtn');
+        const syncIcon = document.getElementById('syncIcon');
+        const syncText = document.getElementById('syncText');
+        const solvedCount = document.getElementById('solvedCount');
+
+        if (syncBtn) {
+            syncBtn.addEventListener('click', async () => {
+                // Prevent multiple clicks
+                if (syncBtn.disabled) return;
+                
+                // Set loading state
+                syncBtn.disabled = true;
+                syncIcon.classList.add('fa-spin');
+                syncText.textContent = 'Syncing...';
+                
+                // Simulate API call delay
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // Simulate new data being fetched
+                const currentCount = parseInt(solvedCount.textContent, 10);
+                const newCount = currentCount + Math.floor(Math.random() * 3) + 1; // Add 1-3 new problems
+                
+                // Animate number counter
+                let start = currentCount;
+                const duration = 500;
+                const startTime = performance.now();
+                
+                const animateCounter = (currentTime) => {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    
+                    // Easing out cubic
+                    const easeOut = 1 - Math.pow(1 - progress, 3);
+                    const currentVal = Math.floor(start + (newCount - start) * easeOut);
+                    
+                    solvedCount.textContent = currentVal;
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animateCounter);
+                    } else {
+                        solvedCount.textContent = newCount;
+                    }
+                };
+                
+                requestAnimationFrame(animateCounter);
+                
+                // Set success state
+                syncIcon.classList.remove('fa-spin', 'fa-sync-alt');
+                syncIcon.classList.add('fa-check', 'text-success');
+                syncText.textContent = 'Synced!';
+                syncBtn.style.borderColor = 'var(--success)';
+                syncBtn.style.color = 'var(--success)';
+                
+                // Reset after 3 seconds
+                setTimeout(() => {
+                    syncBtn.disabled = false;
+                    syncIcon.classList.remove('fa-check', 'text-success');
+                    syncIcon.classList.add('fa-sync-alt');
+                    syncText.textContent = 'Sync LeetCode';
+                    syncBtn.style.borderColor = '';
+                    syncBtn.style.color = '';
+                }, 3000);
+            });
+        }
+    });
+</script>
+{% endblock %}

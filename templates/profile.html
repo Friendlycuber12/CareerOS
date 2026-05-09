@@ -1,0 +1,297 @@
+{% extends "dashboard_base.html" %}
+
+{% block dashboard_content %}
+
+<!-- Profile Hero Section -->
+<div class="card card-elevated mb-6 animate-fade-in" style="display: flex; gap: var(--space-6); align-items: center; border-radius: var(--radius-2xl);">
+    <div style="flex-shrink: 0;">
+        <div style="width: 120px; height: 120px; border-radius: var(--radius-full); background: linear-gradient(135deg, var(--primary-muted), var(--surface-3)); display: flex; align-items: center; justify-content: center; font-size: 3rem; font-weight: 700; color: var(--primary); border: 4px solid var(--surface-0); box-shadow: var(--shadow-sm);">
+            KS
+        </div>
+    </div>
+    <div style="flex: 1;">
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 style="font-size: 2rem; margin-bottom: 4px;">Keshav Soni</h1>
+                <div class="flex items-center gap-3 mb-3">
+                    <span class="text-secondary font-medium">Software Engineering Student</span>
+                    <span style="color: var(--border-hover);">•</span>
+                    <span class="text-secondary">IIT Delhi</span>
+                </div>
+                <div class="flex gap-2 mb-4">
+                    <span class="badge badge-primary">Backend Aspirant</span>
+                    <span class="badge badge-success">Top 5% Consistency</span>
+                </div>
+                <p class="text-muted text-sm" style="max-width: 600px; line-height: 1.6;">
+                    <strong>AI Profile Summary:</strong> Consistently tackling medium/hard Data Structures problems. Strong foundational grasp on Graphs and Dynamic Programming. Currently preparing for Summer 2027 SWE Internships.
+                </p>
+            </div>
+            <div class="flex gap-3">
+                <button class="btn btn-secondary" data-action="share-profile"><i class="fas fa-share-alt"></i> Share</button>
+                <button class="btn btn-primary" data-navigate="/settings"><i class="fas fa-edit"></i> Edit Profile</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+
+    <!-- LEFT COLUMN (Span 8) -->
+    <div class="col-span-8 flex flex-col gap-6">
+
+        <!-- Statistics Grid -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4);">
+            <div class="card flex flex-col justify-between" style="padding: var(--space-4);">
+                <div class="flex items-center gap-3 mb-3">
+                    <div style="width: 36px; height: 36px; border-radius: var(--radius-lg); background: var(--warning-muted); color: var(--warning); display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <span class="text-sm font-medium text-secondary">Coding Streak</span>
+                </div>
+                <div>
+                    <div style="font-size: 1.75rem; font-weight: 700; color: var(--text-main); line-height: 1;">14 Days</div>
+                    <div class="text-xs text-success mt-1"><i class="fas fa-arrow-up"></i> Personal Best</div>
+                </div>
+            </div>
+
+            <div class="card flex flex-col justify-between" style="padding: var(--space-4);">
+                <div class="flex items-center gap-3 mb-3">
+                    <div style="width: 36px; height: 36px; border-radius: var(--radius-lg); background: var(--success-muted); color: var(--success); display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <span class="text-sm font-medium text-secondary">Problems Solved</span>
+                </div>
+                <div>
+                    <div style="font-size: 1.75rem; font-weight: 700; color: var(--text-main); line-height: 1;">156</div>
+                    <div class="text-xs text-muted mt-1">Top 15% of peers</div>
+                </div>
+            </div>
+
+            <div class="card flex flex-col justify-between" style="padding: var(--space-4);">
+                <div class="flex items-center gap-3 mb-3">
+                    <div style="width: 36px; height: 36px; border-radius: var(--radius-lg); background: var(--primary-muted); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+                        <i class="fas fa-paper-plane"></i>
+                    </div>
+                    <span class="text-sm font-medium text-secondary">Applications</span>
+                </div>
+                <div>
+                    <div style="font-size: 1.75rem; font-weight: 700; color: var(--text-main); line-height: 1;">28</div>
+                    <div class="text-xs text-muted mt-1">2 Active Processes</div>
+                </div>
+            </div>
+
+            <div class="card flex flex-col justify-between" style="padding: var(--space-4);">
+                <div class="flex items-center gap-3 mb-3">
+                    <div style="width: 36px; height: 36px; border-radius: var(--radius-lg); background: var(--purple-muted); color: var(--purple); display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <span class="text-sm font-medium text-secondary">Resume Score</span>
+                </div>
+                <div>
+                    <div style="font-size: 1.75rem; font-weight: 700; color: var(--text-main); line-height: 1;">92%</div>
+                    <div class="text-xs text-success mt-1"><i class="fas fa-arrow-up"></i> +5% vs last week</div>
+                </div>
+            </div>
+
+            <div class="card flex flex-col justify-between" style="padding: var(--space-4);">
+                <div class="flex items-center gap-3 mb-3">
+                    <div style="width: 36px; height: 36px; border-radius: var(--radius-lg); background: var(--danger-muted); color: var(--danger); display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <span class="text-sm font-medium text-secondary">Mock Interviews</span>
+                </div>
+                <div>
+                    <div style="font-size: 1.75rem; font-weight: 700; color: var(--text-main); line-height: 1;">8/10</div>
+                    <div class="text-xs text-muted mt-1">Avg Score</div>
+                </div>
+            </div>
+
+            <div class="card flex flex-col justify-between" style="padding: var(--space-4);">
+                <div class="flex items-center gap-3 mb-3">
+                    <div style="width: 36px; height: 36px; border-radius: var(--radius-lg); background: var(--text-faint); color: var(--surface-0); display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+                        <i class="fas fa-route"></i>
+                    </div>
+                    <span class="text-sm font-medium text-secondary">Roadmap</span>
+                </div>
+                <div>
+                    <div style="font-size: 1.75rem; font-weight: 700; color: var(--text-main); line-height: 1;">Phase 2</div>
+                    <div class="text-xs text-muted mt-1">Core Algorithms</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievements Section -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Achievements</span>
+                <button type="button" class="text-sm text-primary font-medium cursor-pointer" data-action="view-achievements" style="background:none;border:none;padding:0;">View All</button>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4);">
+                <div style="background: var(--surface-0); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-4); display: flex; align-items: center; gap: var(--space-4);">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #FDE68A, #F59E0B); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.2);">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div class="font-semibold text-sm mb-1">Consistency Master</div>
+                        <div class="text-xs text-muted mb-2">Hit a 14-day coding streak</div>
+                        <div style="width: 100%; height: 6px; background: var(--border-muted); border-radius: 3px; overflow: hidden;">
+                            <div style="width: 100%; height: 100%; background: var(--warning); border-radius: 3px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: var(--surface-0); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-4); display: flex; align-items: center; gap: var(--space-4);">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #D8B4FE, #9333EA); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem; box-shadow: 0 4px 10px rgba(147, 51, 234, 0.2);">
+                        <i class="fas fa-file-signature"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div class="font-semibold text-sm mb-1">Resume Optimizer</div>
+                        <div class="text-xs text-muted mb-2">Achieve a 90%+ ATS Score</div>
+                        <div style="width: 100%; height: 6px; background: var(--border-muted); border-radius: 3px; overflow: hidden;">
+                            <div style="width: 100%; height: 100%; background: var(--purple); border-radius: 3px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: var(--surface-0); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-4); display: flex; align-items: center; gap: var(--space-4);">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #BFDBFE, #3B82F6); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.2);">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div class="font-semibold text-sm mb-1">Backend Builder</div>
+                        <div class="text-xs text-muted mb-2">Solve 50 System Design problems</div>
+                        <div style="width: 100%; height: 6px; background: var(--border-muted); border-radius: 3px; overflow: hidden;">
+                            <div style="width: 35%; height: 100%; background: var(--primary); border-radius: 3px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: var(--surface-0); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-4); display: flex; align-items: center; gap: var(--space-4); opacity: 0.6;">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--surface-3); border: 2px dashed var(--border-hover); display: flex; align-items: center; justify-content: center; color: var(--text-faint); font-size: 1.25rem;">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div class="font-semibold text-sm mb-1">Interview Crusher</div>
+                        <div class="text-xs text-muted mb-2">Score 9/10 in 3 mock interviews</div>
+                        <div style="width: 100%; height: 6px; background: var(--border-muted); border-radius: 3px; overflow: hidden;">
+                            <div style="width: 33%; height: 100%; background: var(--text-faint); border-radius: 3px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Timeline -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Recent Activity</span>
+            </div>
+            <div class="activity-feed" style="margin-left: 8px;">
+                <div class="activity-item">
+                    <div class="activity-dot" style="background: var(--success);"></div>
+                    <div>
+                        <div class="activity-text">Solved <strong>Two Sum</strong> on LeetCode</div>
+                        <div class="activity-time">2 hours ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-dot" style="background: var(--primary);"></div>
+                    <div>
+                        <div class="activity-text">Applied to <strong>Amazon SDE Intern</strong> role</div>
+                        <div class="activity-time">5 hours ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-dot" style="background: var(--purple);"></div>
+                    <div>
+                        <div class="activity-text">Resume score improved to <strong>92%</strong> (+5%)</div>
+                        <div class="activity-time">Yesterday</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-dot" style="background: var(--warning);"></div>
+                    <div>
+                        <div class="activity-text">Completed <strong>Trees & Graphs</strong> module</div>
+                        <div class="activity-time">2 days ago</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN (Span 4) -->
+    <div class="col-span-4 flex flex-col gap-6">
+
+        <!-- Profile Completion -->
+        <div class="card">
+            <div class="flex justify-between items-center mb-2">
+                <span class="font-semibold text-sm">Profile Completion</span>
+                <span class="text-primary font-bold">85%</span>
+            </div>
+            <div style="width: 100%; height: 8px; background: var(--primary-muted); border-radius: 4px; overflow: hidden; margin-bottom: var(--space-3);">
+                <div style="width: 85%; height: 100%; background: var(--primary); border-radius: 4px;"></div>
+            </div>
+            <p class="text-xs text-muted mb-3">Complete your profile to get better AI recommendations.</p>
+            <button class="btn btn-secondary w-full btn-sm" data-navigate="/settings">Complete Profile</button>
+        </div>
+
+        <!-- AI Insights Panel -->
+        <div class="card card-elevated" style="background: linear-gradient(to bottom, var(--surface-2), var(--surface-0)); border-top: 3px solid var(--primary);">
+            <div class="flex items-center gap-2 mb-4">
+                <i class="fas fa-sparkles text-primary"></i>
+                <h3 class="font-semibold text-sm">AI Profile Insights</h3>
+            </div>
+            
+            <div class="flex flex-col gap-3">
+                <div style="background: var(--surface-2); border: 1px solid var(--border-muted); border-radius: var(--radius-lg); padding: var(--space-3);">
+                    <div class="flex items-center gap-2 mb-1">
+                        <i class="fas fa-chart-line text-success" style="font-size: 0.8rem;"></i>
+                        <span class="font-semibold text-sm">Consistency Improved</span>
+                    </div>
+                    <p class="text-xs text-muted leading-relaxed">Your problem-solving consistency improved by 18% this month. The 14-day streak is building strong muscle memory.</p>
+                </div>
+
+                <div style="background: var(--surface-2); border: 1px solid var(--border-muted); border-radius: var(--radius-lg); padding: var(--space-3);">
+                    <div class="flex items-center gap-2 mb-1">
+                        <i class="fas fa-dumbbell text-primary" style="font-size: 0.8rem;"></i>
+                        <span class="font-semibold text-sm">Strengths Identified</span>
+                    </div>
+                    <p class="text-xs text-muted leading-relaxed">You are currently in the top 20% of users for Backend Development patterns. Keep leveraging this for specific roles.</p>
+                </div>
+
+                <div style="background: var(--surface-2); border: 1px solid var(--border-muted); border-radius: var(--radius-lg); padding: var(--space-3);">
+                    <div class="flex items-center gap-2 mb-1">
+                        <i class="fas fa-bullseye text-warning" style="font-size: 0.8rem;"></i>
+                        <span class="font-semibold text-sm">Recommended Focus</span>
+                    </div>
+                    <p class="text-xs text-muted leading-relaxed">Your mock interview scores drop slightly on System Design questions. Focus on the upcoming DBMS revision module.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Readiness Widget -->
+        <div class="card text-center">
+            <h3 class="font-semibold text-sm mb-4 text-left">Internship Readiness</h3>
+            
+            <div style="position: relative; width: 140px; height: 140px; margin: 0 auto var(--space-4);">
+                <svg viewBox="0 0 100 100" style="width: 100%; height: 100%; transform: rotate(-90deg);">
+                    <!-- Background circle -->
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="var(--border-muted)" stroke-width="12"></circle>
+                    <!-- Progress circle -->
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="var(--success)" stroke-width="12" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="62.8" style="transition: stroke-dashoffset 1s ease-out;"></circle>
+                </svg>
+                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <span style="font-size: 1.5rem; font-weight: 700; color: var(--text-main);">75%</span>
+                    <span style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;">Ready</span>
+                </div>
+            </div>
+            
+            <p class="text-xs text-muted">You are highly prepared for early-stage OA rounds. Interview readiness needs slight polish.</p>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

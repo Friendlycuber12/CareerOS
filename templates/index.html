@@ -1,0 +1,497 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* ---- Landing Page Styles ---- */
+    .landing-nav {
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 50;
+        background-color: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(16px) saturate(180%);
+        border-bottom: 1px solid var(--border-muted);
+    }
+    .landing-nav .container {
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .landing-brand {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--text-main);
+        text-decoration: none;
+        letter-spacing: -0.02em;
+    }
+    .landing-brand i { color: var(--primary); }
+
+    /* ---- Hero ---- */
+    .hero {
+        padding: 160px 0 100px;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        background: radial-gradient(ellipse 80% 50% at 50% -20%, var(--primary-muted) 0%, transparent 60%);
+        pointer-events: none;
+    }
+    .hero-inner {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        max-width: 720px;
+        margin: 0 auto;
+    }
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        background: var(--surface-2);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-full);
+        padding: 4px 14px;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-bottom: var(--space-6);
+    }
+    .hero-badge .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--success);
+        animation: pulseDot 2s ease-in-out infinite;
+    }
+    .hero h1 {
+        font-size: 3.5rem;
+        line-height: 1.1;
+        letter-spacing: -0.04em;
+        font-weight: 700;
+        margin-bottom: var(--space-5);
+    }
+    .hero h1 .text-gradient {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .hero .hero-sub {
+        font-size: 1.125rem;
+        color: var(--text-muted);
+        line-height: 1.7;
+        max-width: 520px;
+        margin: 0 auto var(--space-7);
+    }
+    .hero-buttons {
+        display: flex;
+        gap: var(--space-3);
+        justify-content: center;
+    }
+    .hero-buttons .btn-primary {
+        padding: 10px 24px;
+        font-size: 0.95rem;
+    }
+    .hero-buttons .btn-secondary {
+        padding: 10px 24px;
+        font-size: 0.95rem;
+    }
+
+    /* Trusted Strip */
+    .trusted {
+        text-align: center;
+        padding: var(--space-8) 0;
+        color: var(--text-faint);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+    .trusted-logos {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: var(--space-8);
+        margin-top: var(--space-5);
+        opacity: 0.4;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-muted);
+    }
+
+    /* ---- Bento Feature Grid ---- */
+    .bento-section {
+        padding: var(--space-9) 0;
+    }
+    .bento-section .section-title {
+        text-align: center;
+        margin-bottom: var(--space-8);
+    }
+    .bento-section .section-title h2 {
+        font-size: 2rem;
+        letter-spacing: -0.03em;
+        margin-bottom: var(--space-3);
+    }
+    .bento-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: auto auto;
+        gap: var(--space-4);
+    }
+    .bento-card {
+        background: var(--surface-2);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-xl);
+        padding: var(--space-6);
+        transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+        position: relative;
+        overflow: hidden;
+    }
+    .bento-card:hover {
+        border-color: var(--border-hover);
+        box-shadow: var(--shadow-md);
+    }
+    .bento-card.wide { grid-column: span 2; }
+    .bento-card.tall { grid-row: span 2; }
+    .bento-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        margin-bottom: var(--space-4);
+    }
+    .bento-card h3 {
+        font-size: 1rem;
+        margin-bottom: var(--space-2);
+    }
+    .bento-card p {
+        font-size: 0.857rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+    }
+    .bento-card .bento-preview {
+        margin-top: var(--space-4);
+        background: var(--surface-0);
+        border: 1px solid var(--border-muted);
+        border-radius: var(--radius-lg);
+        padding: var(--space-3);
+        font-size: 0.75rem;
+        color: var(--text-faint);
+    }
+
+    /* ---- Stats ---- */
+    .stats-section {
+        padding: var(--space-9) 0;
+        border-top: 1px solid var(--border-muted);
+        border-bottom: 1px solid var(--border-muted);
+    }
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--space-6);
+        text-align: center;
+    }
+    .stats-grid .stat-num {
+        font-size: 2.5rem;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        color: var(--text-main);
+    }
+    .stats-grid .stat-desc {
+        font-size: 0.857rem;
+        color: var(--text-muted);
+        margin-top: var(--space-1);
+    }
+
+    /* ---- CTA Section ---- */
+    .cta-section {
+        padding: var(--space-9) 0;
+        text-align: center;
+    }
+    .cta-card {
+        background: var(--surface-2);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-2xl);
+        padding: var(--space-9) var(--space-8);
+        max-width: 700px;
+        margin: 0 auto;
+        position: relative;
+        overflow: hidden;
+    }
+    .cta-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), #60A5FA, var(--primary));
+        background-size: 200% 200%;
+        animation: gradientSweep 6s ease infinite;
+    }
+    .cta-card h2 {
+        font-size: 2rem;
+        letter-spacing: -0.03em;
+        margin-bottom: var(--space-3);
+    }
+
+    /* ---- Footer ---- */
+    .landing-footer {
+        padding: var(--space-8) 0 var(--space-6);
+        border-top: 1px solid var(--border-muted);
+    }
+    .footer-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: var(--space-8);
+        margin-bottom: var(--space-8);
+    }
+    .footer-links {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+    }
+    .footer-links h4 {
+        font-size: 0.857rem;
+        margin-bottom: var(--space-1);
+    }
+    .footer-links a {
+        font-size: 0.857rem;
+        color: var(--text-muted);
+        text-decoration: none;
+    }
+    .footer-links a:hover { color: var(--text-main); }
+    .footer-bottom {
+        text-align: center;
+        padding-top: var(--space-6);
+        border-top: 1px solid var(--border-muted);
+        color: var(--text-faint);
+        font-size: 0.75rem;
+    }
+
+    /* ---- Responsive ---- */
+    @media (max-width: 1024px) {
+        .hero h1 { font-size: 2.75rem; }
+        .bento-grid { grid-template-columns: 1fr 1fr; }
+        .bento-card.wide { grid-column: span 2; }
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+        .hero h1 { font-size: 2.25rem; }
+        .hero { padding: 120px 0 60px; }
+        .bento-grid { grid-template-columns: 1fr; }
+        .bento-card.wide { grid-column: span 1; }
+        .stats-grid { grid-template-columns: 1fr 1fr; gap: var(--space-8); }
+        .footer-grid { grid-template-columns: 1fr; gap: var(--space-6); }
+        .hero-buttons { flex-direction: column; align-items: center; }
+        .trusted-logos { flex-wrap: wrap; gap: var(--space-5); }
+    }
+</style>
+
+<!-- Navbar -->
+<nav class="landing-nav">
+    <div class="container">
+        <a href="/" class="landing-brand">
+            <i class="fas fa-layer-group"></i> CareerOS
+        </a>
+        <div class="flex gap-6 items-center">
+            <a href="#features" class="text-sm text-muted font-medium" style="text-decoration: none;">Features</a>
+            <a href="#stats" class="text-sm text-muted font-medium" style="text-decoration: none;">About</a>
+            <a href="/login" class="text-sm text-muted font-medium" style="text-decoration: none;">Login</a>
+            <a href="/signup" class="btn btn-primary btn-sm">Get Started</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-inner animate-fade-in">
+            <div class="hero-badge">
+                <span class="dot"></span> Now in Public Beta
+            </div>
+            <h1>The Operating System<br>for <span class="text-gradient">Your Career</span></h1>
+            <p class="hero-sub">Track applications, analyze your resume, practice interviews, and master DSA — all powered by AI. Built for ambitious engineers.</p>
+            <div class="hero-buttons">
+                <a href="/signup" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Get Started Free</a>
+                <a href="#features" class="btn btn-secondary"><i class="fas fa-play"></i> See How It Works</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Trusted -->
+<div class="trusted">
+    <div class="container">
+        Trusted by students at
+        <div class="trusted-logos">
+            <span>IIT Delhi</span>
+            <span>NIT Trichy</span>
+            <span>BITS Pilani</span>
+            <span>IIIT Hyderabad</span>
+            <span>VIT</span>
+        </div>
+    </div>
+</div>
+
+<!-- Bento Features -->
+<section id="features" class="bento-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Everything you need to land your dream role</h2>
+            <p class="text-lg text-muted">Six intelligent modules, one unified workspace.</p>
+        </div>
+        <div class="bento-grid">
+            <!-- Wide: AI Roadmaps -->
+            <div class="bento-card wide">
+                <div class="bento-icon" style="background: var(--primary-muted); color: var(--primary);">
+                    <i class="fas fa-route"></i>
+                </div>
+                <h3>AI-Powered Roadmaps</h3>
+                <p>Get a personalized learning path tailored to your target role, timeline, and current skill level. The AI adapts as you progress.</p>
+                <div class="bento-preview">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--success);"></div>
+                        <span>Phase 1: Foundation → <strong style="color: var(--success);">Complete</strong></span>
+                    </div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--primary);"></div>
+                        <span>Phase 2: Core Algorithms → <strong style="color: var(--primary);">In Progress</strong></span>
+                    </div>
+                    <div class="flex items-center gap-2" style="opacity: 0.5;">
+                        <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--text-faint);"></div>
+                        <span>Phase 3: Advanced Topics → Locked</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coding Analytics -->
+            <div class="bento-card">
+                <div class="bento-icon" style="background: var(--success-muted); color: var(--success);">
+                    <i class="fas fa-code"></i>
+                </div>
+                <h3>Coding Analytics</h3>
+                <p>Visualize your problem-solving patterns with a GitHub-style heatmap, topic proficiency radar, and streak tracking.</p>
+            </div>
+
+            <!-- Application Tracker -->
+            <div class="bento-card">
+                <div class="bento-icon" style="background: var(--warning-muted); color: var(--warning);">
+                    <i class="fas fa-columns"></i>
+                </div>
+                <h3>Application Tracker</h3>
+                <p>A Kanban board to track every application from applied to offer. Never miss a deadline again.</p>
+            </div>
+
+            <!-- Resume Analyzer -->
+            <div class="bento-card">
+                <div class="bento-icon" style="background: var(--purple-muted); color: var(--purple);">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h3>Resume Analyzer</h3>
+                <p>Get an instant ATS score and actionable AI suggestions to make your resume stand out to recruiters.</p>
+            </div>
+
+            <!-- Wide: AI Assistant -->
+            <div class="bento-card wide">
+                <div class="bento-icon" style="background: var(--primary-muted); color: var(--primary);">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3>AI Career Assistant</h3>
+                <p>Your 24/7 coding tutor and career advisor. Debug code, explain algorithms, review resumes, and practice behavioral questions — all in one chat.</p>
+                <div class="bento-preview flex gap-3">
+                    <div class="avatar" style="width: 24px; height: 24px; font-size: 0.55rem;">AI</div>
+                    <div>
+                        <div style="color: var(--text-secondary); font-size: 0.8rem;">A Trie is a tree-like data structure used for efficient string prefix searches. Here's an implementation...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats -->
+<section id="stats" class="stats-section">
+    <div class="container">
+        <div class="stats-grid">
+            <div>
+                <div class="stat-num">10K+</div>
+                <div class="stat-desc">Roadmaps Generated</div>
+            </div>
+            <div>
+                <div class="stat-num">50K+</div>
+                <div class="stat-desc">Problems Tracked</div>
+            </div>
+            <div>
+                <div class="stat-num">95%</div>
+                <div class="stat-desc">ATS Accuracy</div>
+            </div>
+            <div>
+                <div class="stat-num">3K+</div>
+                <div class="stat-desc">Active Users</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-card">
+            <h2>Ready to accelerate your career?</h2>
+            <p class="text-muted mb-6" style="max-width: 420px; margin: 0 auto var(--space-7);">Join thousands of engineering students preparing smarter with AI-powered tools.</p>
+            <div class="hero-buttons">
+                <a href="/signup" class="btn btn-primary btn-lg"><i class="fas fa-arrow-right"></i> Get Started Free</a>
+            </div>
+            <p class="text-faint text-xs mt-4">No credit card required · Free forever plan available</p>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="landing-footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div>
+                <a href="/" class="landing-brand mb-4">
+                    <i class="fas fa-layer-group"></i> CareerOS
+                </a>
+                <p class="text-sm text-muted mt-4" style="max-width: 280px;">
+                    The intelligent operating system for ambitious engineering students.
+                </p>
+            </div>
+            <div class="footer-links">
+                <h4>Product</h4>
+                <a href="#features">Features</a>
+                <a href="/" data-action="coming-soon" data-label="Changelog">Changelog</a>
+                <a href="/roadmap">Roadmap</a>
+            </div>
+            <div class="footer-links">
+                <h4>Resources</h4>
+                <a href="/" data-action="coming-soon" data-label="Blog">Blog</a>
+                <a href="/roadmap">Guides</a>
+                <a href="/assistant">Help Center</a>
+            </div>
+            <div class="footer-links">
+                <h4>Legal</h4>
+                <a href="/" data-action="coming-soon" data-label="Privacy Policy">Privacy Policy</a>
+                <a href="/" data-action="coming-soon" data-label="Terms of Service">Terms of Service</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 CareerOS. All rights reserved.
+        </div>
+    </div>
+</footer>
+{% endblock %}

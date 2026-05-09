@@ -1,0 +1,112 @@
+/* ============================================
+   CareerOS — Premium Micro-interactions
+   ============================================ */
+
+/* ---- Page Fade In ---- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.96) translateY(4px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ---- Command Palette ---- */
+@keyframes cmdPaletteIn {
+    from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes cmdPaletteOut {
+    from { opacity: 1; transform: scale(1) translateY(0); }
+    to { opacity: 0; transform: scale(0.95) translateY(-10px); }
+}
+
+@keyframes overlayIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ---- Shimmer / Loading ---- */
+@keyframes shimmer {
+    0% { background-position: -200px 0; }
+    100% { background-position: calc(200px + 100%) 0; }
+}
+
+/* ---- Pulse dot (notifications) ---- */
+@keyframes pulseDot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.4); }
+}
+
+/* ---- Gradient Line Sweep ---- */
+@keyframes gradientSweep {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ---- Count Up (stat numbers) ---- */
+@keyframes countUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- Classes ---- */
+.animate-fade-in {
+    animation: fadeIn 0.35s var(--transition-smooth) forwards;
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    opacity: 0;
+}
+
+.animate-fade-in-scale {
+    animation: fadeInScale 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-slide-up {
+    animation: fadeInUp 0.35s ease forwards;
+}
+
+.skeleton-box {
+    background-color: var(--surface-3);
+    background-image: linear-gradient(90deg, rgba(255,255,255,0) 0, rgba(255,255,255,0.03) 20%, rgba(255,255,255,0) 40%);
+    background-size: 200px 100%;
+    background-repeat: no-repeat;
+    border-radius: var(--radius-sm);
+    animation: shimmer 1.5s infinite linear;
+}
+
+.pulse-dot {
+    animation: pulseDot 2s ease-in-out infinite;
+}
+
+.gradient-line {
+    background: linear-gradient(90deg, var(--primary), var(--purple), var(--primary));
+    background-size: 200% 200%;
+    animation: gradientSweep 6s ease infinite;
+}
+
+/* Delays */
+.delay-75 { animation-delay: 75ms; }
+.delay-100 { animation-delay: 100ms; }
+.delay-150 { animation-delay: 150ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+
+/* ---- Legacy no-ops ---- */
+.hover-lift {}
+.animate-float {}
+.animate-pulse-glow {}
+.animate-slide-in {}

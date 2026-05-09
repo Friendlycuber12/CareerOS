@@ -1,0 +1,103 @@
+{% extends "dashboard_base.html" %}
+
+{% block dashboard_content %}
+<div class="page-header">
+    <div>
+        <h1>Settings</h1>
+        <p>Manage your account and preferences.</p>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Nav -->
+    <div class="col-span-3">
+        <div class="card p-2 flex flex-col gap-1 animate-fade-in-up">
+            <button type="button" class="text-left rounded text-primary font-medium text-sm" data-settings-tab="Profile" style="background:var(--primary-muted);padding:6px 12px;">Profile</button>
+            <button type="button" class="text-left rounded text-muted font-medium text-sm transition-colors" data-settings-tab="Account" style="padding:6px 12px;" onmouseenter="this.style.background='var(--surface-3)'" onmouseleave="this.style.background='transparent'">Account</button>
+            <button type="button" class="text-left rounded text-muted font-medium text-sm transition-colors" data-settings-tab="Notifications" style="padding:6px 12px;" onmouseenter="this.style.background='var(--surface-3)'" onmouseleave="this.style.background='transparent'">Notifications</button>
+            <button type="button" class="text-left rounded text-muted font-medium text-sm transition-colors" data-settings-tab="Integrations" style="padding:6px 12px;" onmouseenter="this.style.background='var(--surface-3)'" onmouseleave="this.style.background='transparent'">Integrations</button>
+            <button type="button" class="text-left rounded text-muted font-medium text-sm transition-colors" data-settings-tab="Billing" style="padding:6px 12px;" onmouseenter="this.style.background='var(--surface-3)'" onmouseleave="this.style.background='transparent'">Billing</button>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="col-span-9 space-y-4">
+        <div class="card animate-fade-in-up delay-100">
+            <div class="card-header"><span class="card-title">Profile Picture</span></div>
+            <div class="card-body flex items-center gap-5">
+                <div class="avatar" style="width:64px;height:64px;font-size:1.25rem;">KS</div>
+                <div>
+                    <div class="flex gap-3 mb-2">
+                        <button type="button" class="btn btn-primary btn-sm" data-action="upload-avatar">Upload New</button>
+                        <button type="button" class="btn btn-secondary btn-sm" data-action="remove-avatar">Remove</button>
+                    </div>
+                    <p class="text-xs text-faint">JPEG, PNG, or GIF. Max 10MB.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card animate-fade-in-up delay-200">
+            <div class="card-header"><span class="card-title">Personal Information</span></div>
+            <div class="card-body">
+                <form class="space-y-4" data-action="save-settings">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="input-group" style="margin-bottom:0;">
+                            <label class="input-label">First Name</label>
+                            <input type="text" class="input-field" value="Keshav">
+                        </div>
+                        <div class="input-group" style="margin-bottom:0;">
+                            <label class="input-label">Last Name</label>
+                            <input type="text" class="input-field" value="Soni">
+                        </div>
+                    </div>
+                    <div class="input-group" style="margin-bottom:0;">
+                        <label class="input-label">Email Address</label>
+                        <input type="email" class="input-field" value="keshav@example.com">
+                    </div>
+                    <div class="input-group" style="margin-bottom:0;">
+                        <label class="input-label">Target Role</label>
+                        <select class="input-field">
+                            <option selected>Software Engineer</option>
+                            <option>Frontend Developer</option>
+                            <option>Backend Developer</option>
+                            <option>Data Scientist</option>
+                        </select>
+                    </div>
+                    <div class="card-footer flex justify-between items-center">
+                        <span class="text-xs text-faint">Last updated 2 days ago</span>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card animate-fade-in-up delay-300">
+            <div class="card-header"><span class="card-title">Appearance</span></div>
+            <div class="card-body flex items-center justify-between">
+                <div>
+                    <div class="text-sm font-medium">Theme Mode</div>
+                    <div class="text-xs text-faint">Choose how CareerOS looks.</div>
+                </div>
+                <div class="flex rounded p-1" style="background:var(--surface-0);border:1px solid var(--border-muted);">
+                    <button type="button" class="text-xs rounded font-medium text-faint" data-theme-option="Light" style="padding:3px 10px;">Light</button>
+                    <button type="button" class="text-xs rounded font-medium text-main" data-theme-option="Dark" style="padding:3px 10px;background:var(--surface-4);">Dark</button>
+                    <button type="button" class="text-xs rounded font-medium text-faint" data-theme-option="System" style="padding:3px 10px;">System</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card animate-fade-in-up delay-400" style="border-color:rgba(248,81,73,0.3);">
+            <div class="card-header"><span class="card-title text-danger">Danger Zone</span></div>
+            <div class="card-body">
+                <div class="flex items-center justify-between p-3 rounded-lg" style="background:var(--danger-muted);border:1px solid rgba(248,81,73,0.2);">
+                    <div>
+                        <div class="text-sm font-medium text-danger">Delete Account</div>
+                        <div class="text-xs text-faint">Permanently delete your account and all data.</div>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm" data-action="delete-account">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
