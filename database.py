@@ -2,7 +2,7 @@ import os
 
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from sqlalchemy import create_engine
 
 
@@ -10,7 +10,9 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg:///careeros")
 
 engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
-Base = declarative_base()
+
+class Base(DeclarativeBase):
+    pass
 
 _initialized = False
 
@@ -43,7 +45,7 @@ def ensure_database_initialized():
         return
 
     try:
-        import models
+        import models  # noqa: F401
 
         Base.metadata.create_all(bind=engine)
         _initialized = True
