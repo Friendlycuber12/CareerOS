@@ -3,72 +3,242 @@
 {% block dashboard_content %}
 <div class="dashboard-grid" style="height:calc(100vh - 96px);">
     <div class="card col-span-12 flex flex-col h-full p-0 overflow-hidden card-elevated animate-fade-in-up" style="position:relative;">
-        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--primary),var(--purple));background-size:200% 200%;animation:gradientSweep 6s ease infinite;"></div>
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--purple));"></div>
 
-        <div class="flex-1 overflow-y-auto p-5" id="assistantThread">
-            <!-- Welcome -->
-            <div class="text-center mb-6">
-                <div class="avatar mx-auto mb-3" style="width:48px;height:48px;font-size:1.25rem;">
-                    <i class="fas fa-robot" style="color:white;font-size:0.9rem;"></i>
+        <!-- Header -->
+        <div class="flex items-center justify-between px-5 py-3 border-b" style="flex-shrink:0;">
+            <div class="flex items-center gap-3">
+                <div class="avatar" style="width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--purple));font-size:0.8rem;">
+                    <i class="fas fa-robot" style="color:white;"></i>
                 </div>
-                <h2 class="font-semibold mb-1">How can I help?</h2>
-                <p class="text-sm text-muted">Debug code, review your resume, or explain algorithms.</p>
+                <div>
+                    <div class="font-semibold text-sm">CareerOS AI Assistant</div>
+                    <div class="text-xs text-success flex items-center gap-1"><span style="width:6px;height:6px;border-radius:50%;background:var(--success);display:inline-block;"></span> Online</div>
+                </div>
             </div>
+            <button class="btn btn-secondary btn-sm" id="clearChatBtn"><i class="fas fa-trash-alt"></i> Clear Chat</button>
+        </div>
 
+        <!-- Thread -->
+        <div class="flex-1 overflow-y-auto p-5" id="assistantThread">
             <!-- Quick Actions -->
-            <div class="grid grid-cols-4 gap-3 mb-6">
-                <button class="p-3 text-left rounded-lg transition-colors cursor-pointer" data-assistant-prompt="Why is my Two Sum solution O(n^2), and how can I improve it?" style="background:var(--surface-0);border:1px solid var(--border-muted);" onmouseenter="this.style.borderColor='var(--border-hover)'" onmouseleave="this.style.borderColor='var(--border-muted)'">
-                    <div class="text-xs font-semibold text-primary mb-1">Debug Code</div>
+            <div class="grid grid-cols-2 gap-3 mb-5" id="quickActions">
+                <button class="p-3 text-left rounded-xl border transition-colors cursor-pointer quick-prompt" data-prompt="Why is my Two Sum solution O(n²) and how do I optimize it to O(n)? Explain with code." style="background:var(--surface-0);border-color:var(--border-muted);">
+                    <div class="text-xs font-semibold text-primary mb-1"><i class="fas fa-bug"></i> Debug Code</div>
                     <div class="text-xs text-faint">Why is my Two Sum O(n²)?</div>
                 </button>
-                <button class="p-3 text-left rounded-lg transition-colors cursor-pointer" data-assistant-prompt="Explain Dijkstra's algorithm simply with an interview-friendly example." style="background:var(--surface-0);border:1px solid var(--border-muted);" onmouseenter="this.style.borderColor='var(--border-hover)'" onmouseleave="this.style.borderColor='var(--border-muted)'">
-                    <div class="text-xs font-semibold text-success mb-1">Explain Concept</div>
+                <button class="p-3 text-left rounded-xl border transition-colors cursor-pointer quick-prompt" data-prompt="Explain Dijkstra's algorithm with a clear, step-by-step breakdown. Include Python code and time complexity." style="background:var(--surface-0);border-color:var(--border-muted);">
+                    <div class="text-xs font-semibold text-success mb-1"><i class="fas fa-graduation-cap"></i> Explain Concept</div>
                     <div class="text-xs text-faint">Explain Dijkstra's simply.</div>
                 </button>
-                <button class="p-3 text-left rounded-lg transition-colors cursor-pointer" data-assistant-prompt="Review this project resume bullet and make it stronger." style="background:var(--surface-0);border:1px solid var(--border-muted);" onmouseenter="this.style.borderColor='var(--border-hover)'" onmouseleave="this.style.borderColor='var(--border-muted)'">
-                    <div class="text-xs font-semibold text-warning mb-1">Resume Review</div>
-                    <div class="text-xs text-faint">Review my project bullet.</div>
+                <button class="p-3 text-left rounded-xl border transition-colors cursor-pointer quick-prompt" data-prompt="What's the difference between TCP and UDP? When would you use each? Explain from an interview perspective." style="background:var(--surface-0);border-color:var(--border-muted);">
+                    <div class="text-xs font-semibold text-warning mb-1"><i class="fas fa-network-wired"></i> CN Concepts</div>
+                    <div class="text-xs text-faint">TCP vs UDP — when to use?</div>
                 </button>
-                <button class="p-3 text-left rounded-lg transition-colors cursor-pointer" data-assistant-prompt="Ask me one behavioral interview question and evaluate my answer." style="background:var(--surface-0);border:1px solid var(--border-muted);" onmouseenter="this.style.borderColor='var(--border-hover)'" onmouseleave="this.style.borderColor='var(--border-muted)'">
-                    <div class="text-xs font-semibold text-purple mb-1">Mock Interview</div>
-                    <div class="text-xs text-faint">Ask a behavioral question.</div>
+                <button class="p-3 text-left rounded-xl border transition-colors cursor-pointer quick-prompt" data-prompt="Ask me one hard behavioral interview question and give me detailed feedback on my answer using the STAR method." style="background:var(--surface-0);border-color:var(--border-muted);">
+                    <div class="text-xs font-semibold text-purple mb-1"><i class="fas fa-user-tie"></i> Behavioral</div>
+                    <div class="text-xs text-faint">Practice a behavioral question.</div>
+                </button>
+                <button class="p-3 text-left rounded-xl border transition-colors cursor-pointer quick-prompt" data-prompt="Explain database indexing: what it is, how B-trees work, when to use indexes, and common pitfalls in interviews." style="background:var(--surface-0);border-color:var(--border-muted);">
+                    <div class="text-xs font-semibold" style="color:var(--purple);margin-bottom:4px;"><i class="fas fa-database"></i> DBMS</div>
+                    <div class="text-xs text-faint">Explain database indexing.</div>
+                </button>
+                <button class="p-3 text-left rounded-xl border transition-colors cursor-pointer quick-prompt" data-prompt="How does virtual memory work? Explain paging, page tables, TLB, and page faults in an interview-friendly way." style="background:var(--surface-0);border-color:var(--border-muted);">
+                    <div class="text-xs font-semibold text-warning mb-1"><i class="fas fa-microchip"></i> OS Concepts</div>
+                    <div class="text-xs text-faint">How does virtual memory work?</div>
                 </button>
             </div>
 
-            <!-- Example -->
-            <div class="flex gap-3 flex-row-reverse mb-4">
-                <div class="avatar" style="width:28px;height:28px;">KS</div>
-                <div class="p-3 rounded-lg text-sm" style="max-width:80%;background:var(--primary-muted);border:1px solid rgba(47,129,247,0.3);">
-                    Can you explain how a Trie works? I have an Amazon interview next week.
-                </div>
-            </div>
-            <div class="flex gap-3">
-                <div class="avatar" style="width:28px;height:28px;background:var(--primary);"><i class="fas fa-robot" style="font-size:0.55rem;color:white;"></i></div>
-                <div class="p-3 rounded-lg text-sm flex-1" style="background:var(--surface-0);">
-                    <p class="mb-2">A <strong>Trie</strong> (prefix tree) stores strings where each node represents a character. It allows fast prefix searches in O(m) time.</p>
-                    <p class="mb-2 text-muted">Useful for autocomplete, spell checkers, and IP routing.</p>
-                    <div class="p-3 rounded font-mono text-xs mt-2" style="background:var(--surface-2);border:1px solid var(--border-muted);color:var(--text-faint);">
-                        class TrieNode {<br>
-                        &nbsp;&nbsp;constructor() {<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;this.children = {};<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;this.isEnd = false;<br>
-                        &nbsp;&nbsp;}<br>
-                        }
-                    </div>
-                </div>
+            <!-- Welcome -->
+            <div class="text-center mb-5" id="welcomeMsg">
+                <p class="text-sm text-muted">Ask me anything — algorithms, system design, OS, DBMS, networking, behavioral questions, or career advice.</p>
             </div>
         </div>
 
         <!-- Input -->
-        <div class="p-3 border-t" style="background:var(--surface-2);">
+        <div class="p-4 border-t" style="background:var(--surface-2);flex-shrink:0;">
             <div class="relative">
-                <input type="text" class="input-field w-full" id="assistantInput" style="padding-right:40px;" placeholder="Message CareerOS Assistant...">
-                <button class="icon-btn text-primary absolute" type="button" data-action="assistant-send" style="right:8px;top:50%;transform:translateY(-50%);">
+                <textarea class="input-field w-full" id="assistantInput" rows="2" placeholder="Ask a coding question, request an explanation, debug code..." style="resize:none;padding-right:44px;padding-bottom:36px;"></textarea>
+                <button class="icon-btn text-primary absolute" type="button" id="assistantSendBtn" style="right:8px;top:8px;">
                     <i class="fas fa-arrow-up"></i>
                 </button>
+                <div class="absolute flex gap-2" style="left:10px;bottom:8px;">
+                    <span class="text-xs text-faint">Enter to send · Shift+Enter for new line</span>
+                </div>
             </div>
-            <div class="text-center mt-2 text-faint" style="font-size:0.6rem;">AI can make mistakes. Verify code before submitting.</div>
+            <div class="text-center mt-2 text-faint" style="font-size:0.65rem;">AI can make mistakes. Verify code before submitting in interviews.</div>
         </div>
     </div>
 </div>
+
+<style>
+.quick-prompt:hover { border-color: var(--primary) !important; background: var(--primary-muted) !important; }
+.ai-msg { background: var(--surface-0); border-radius: 14px; padding: 14px 16px; font-size: 0.875rem; line-height: 1.7; max-width: 85%; }
+.user-msg { background: var(--primary-muted); border: 1px solid rgba(59,130,246,0.25); border-radius: 14px; padding: 12px 16px; font-size: 0.875rem; line-height: 1.6; max-width: 80%; }
+pre { background: var(--surface-2); border: 1px solid var(--border-muted); border-radius: 8px; padding: 12px 14px; font-size: 0.78rem; overflow-x: auto; margin: 10px 0; }
+code:not(pre code) { background: var(--surface-0); padding: 1px 5px; border-radius: 4px; font-size: 0.82em; color: var(--primary); }
+strong { color: var(--text-main); }
+</style>
+{% endblock %}
+
+{% block dashboard_js %}
+<script>
+const CHAT_KEY = 'careeros_chat';
+let chatHistory = [];
+
+function saveChatHistory() {
+    localStorage.setItem(CHAT_KEY, JSON.stringify(chatHistory.slice(-30)));
+}
+
+function loadChatHistory() {
+    try { return JSON.parse(localStorage.getItem(CHAT_KEY) || '[]'); } catch { return []; }
+}
+
+function formatAIText(text) {
+    return text
+        .replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) =>
+            `<pre><code class="language-${lang}">${code.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</code></pre>`)
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/^#{1,3} (.+)$/gm, '<strong>$1</strong>')
+        .replace(/\n\n/g, '<br><br>')
+        .replace(/\n/g, '<br>');
+}
+
+function appendMessage(role, html, rawText) {
+    const thread = document.getElementById('assistantThread');
+    document.getElementById('quickActions')?.remove();
+    document.getElementById('welcomeMsg')?.remove();
+
+    const row = document.createElement('div');
+    row.className = role === 'user' ? 'flex gap-3 flex-row-reverse mb-4' : 'flex gap-3 mb-4';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar';
+    avatar.style.cssText = 'width:28px;height:28px;flex-shrink:0;align-self:flex-start;font-size:0.6rem;';
+    if (role === 'user') {
+        avatar.textContent = 'KS';
+    } else {
+        avatar.style.background = 'linear-gradient(135deg,var(--primary),var(--purple))';
+        avatar.innerHTML = '<i class="fas fa-robot" style="color:white;font-size:0.55rem;"></i>';
+    }
+
+    const bubble = document.createElement('div');
+    bubble.className = role === 'user' ? 'user-msg' : 'ai-msg';
+    bubble.innerHTML = html;
+
+    row.append(avatar, bubble);
+    thread.appendChild(row);
+    thread.scrollTop = thread.scrollHeight;
+}
+
+function showTyping() {
+    const thread = document.getElementById('assistantThread');
+    document.getElementById('quickActions')?.remove();
+    document.getElementById('welcomeMsg')?.remove();
+    const row = document.createElement('div');
+    row.className = 'flex gap-3 mb-4';
+    row.id = 'typingRow';
+    row.innerHTML = `
+        <div class="avatar" style="width:28px;height:28px;background:linear-gradient(135deg,var(--primary),var(--purple));flex-shrink:0;align-self:flex-start;">
+            <i class="fas fa-robot" style="color:white;font-size:0.55rem;"></i>
+        </div>
+        <div class="ai-msg flex items-center gap-2" style="padding: 14px 18px;">
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--primary);animation:pulse 1.2s ease-in-out infinite;display:inline-block;"></span>
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--primary);animation:pulse 1.2s ease-in-out 0.2s infinite;display:inline-block;"></span>
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--primary);animation:pulse 1.2s ease-in-out 0.4s infinite;display:inline-block;"></span>
+        </div>`;
+    thread.appendChild(row);
+    thread.scrollTop = thread.scrollHeight;
+}
+
+function removeTyping() { document.getElementById('typingRow')?.remove(); }
+
+async function sendMessage(text) {
+    if (!text.trim()) return;
+    const input = document.getElementById('assistantInput');
+    const sendBtn = document.getElementById('assistantSendBtn');
+    input.value = '';
+    sendBtn.disabled = true;
+
+    appendMessage('user', text.replace(/\n/g,'<br>').replace(/</g,'&lt;').replace(/>/g,'&gt;'), text);
+    chatHistory.push({ role: 'user', content: text });
+
+    showTyping();
+    try {
+        const res = await fetch('/api/ai/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text, history: chatHistory.slice(-12) })
+        });
+        if (!res.ok) throw new Error('Request failed');
+        const data = await res.json();
+        removeTyping();
+        appendMessage('ai', formatAIText(data.reply), data.reply);
+        chatHistory.push({ role: 'assistant', content: data.reply });
+        saveChatHistory();
+    } catch(e) {
+        removeTyping();
+        appendMessage('ai', 'Sorry, I encountered an error. Please check your connection and try again.');
+    } finally {
+        sendBtn.disabled = false;
+        input.focus();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    chatHistory = loadChatHistory();
+
+    document.getElementById('assistantSendBtn').addEventListener('click', () => {
+        sendMessage(document.getElementById('assistantInput').value.trim());
+    });
+
+    document.getElementById('assistantInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage(document.getElementById('assistantInput').value.trim());
+        }
+    });
+
+    document.getElementById('clearChatBtn').addEventListener('click', () => {
+        chatHistory = [];
+        saveChatHistory();
+        const thread = document.getElementById('assistantThread');
+        thread.innerHTML = `
+            <div class="grid grid-cols-2 gap-3 mb-5" id="quickActions">
+                <button class="p-3 text-left rounded-xl border transition-colors cursor-pointer quick-prompt" data-prompt="Why is my Two Sum solution O(n²) and how do I optimize it to O(n)? Explain with code." style="background:var(--surface-0);border-color:var(--border-muted);">
+                    <div class="text-xs font-semibold text-primary mb-1"><i class="fas fa-bug"></i> Debug Code</div>
+                    <div class="text-xs text-faint">Why is my Two Sum O(n²)?</div>
+                </button>
+                <button class="p-3 text-left rounded-xl border transition-colors cursor-pointer quick-prompt" data-prompt="Explain Dijkstra's algorithm with a clear, step-by-step breakdown. Include Python code and time complexity." style="background:var(--surface-0);border-color:var(--border-muted);">
+                    <div class="text-xs font-semibold text-success mb-1"><i class="fas fa-graduation-cap"></i> Explain Concept</div>
+                    <div class="text-xs text-faint">Explain Dijkstra's simply.</div>
+                </button>
+                <button class="p-3 text-left rounded-xl border transition-colors cursor-pointer quick-prompt" data-prompt="What's the difference between TCP and UDP?" style="background:var(--surface-0);border-color:var(--border-muted);">
+                    <div class="text-xs font-semibold text-warning mb-1"><i class="fas fa-network-wired"></i> CN Concepts</div>
+                    <div class="text-xs text-faint">TCP vs UDP — when to use?</div>
+                </button>
+                <button class="p-3 text-left rounded-xl border transition-colors cursor-pointer quick-prompt" data-prompt="Ask me a hard behavioral interview question and give feedback using STAR." style="background:var(--surface-0);border-color:var(--border-muted);">
+                    <div class="text-xs font-semibold text-purple mb-1"><i class="fas fa-user-tie"></i> Behavioral</div>
+                    <div class="text-xs text-faint">Practice a behavioral question.</div>
+                </button>
+            </div>
+            <div class="text-center mb-5" id="welcomeMsg">
+                <p class="text-sm text-muted">Chat cleared. Ask me anything!</p>
+            </div>`;
+        attachQuickPrompts();
+        showToast('Chat cleared.', 'success');
+    });
+
+    function attachQuickPrompts() {
+        document.querySelectorAll('.quick-prompt').forEach(btn => {
+            btn.addEventListener('click', () => {
+                sendMessage(btn.dataset.prompt);
+            });
+        });
+    }
+    attachQuickPrompts();
+});
+</script>
 {% endblock %}

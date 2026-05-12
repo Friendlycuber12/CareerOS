@@ -2,270 +2,248 @@
 
 {% block dashboard_content %}
 
-<!-- Profile Hero Section -->
-<div class="card card-elevated mb-6 animate-fade-in" style="display: flex; gap: var(--space-6); align-items: center; border-radius: var(--radius-2xl);">
-    <div style="flex-shrink: 0;">
-        <div style="width: 120px; height: 120px; border-radius: var(--radius-full); background: linear-gradient(135deg, var(--primary-muted), var(--surface-3)); display: flex; align-items: center; justify-content: center; font-size: 3rem; font-weight: 700; color: var(--primary); border: 4px solid var(--surface-0); box-shadow: var(--shadow-sm);">
+<!-- Profile Hero -->
+<div class="card card-elevated mb-6 animate-fade-in" style="display:flex;gap:var(--space-6);align-items:center;border-radius:var(--radius-2xl);">
+    <div style="flex-shrink:0;">
+        <div id="profileAvatar" style="width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,var(--primary-muted),var(--surface-3));display:flex;align-items:center;justify-content:center;font-size:2.5rem;font-weight:700;color:var(--primary);border:4px solid var(--surface-0);box-shadow:var(--shadow-sm);overflow:hidden;">
             KS
         </div>
     </div>
-    <div style="flex: 1;">
+    <div style="flex:1;">
         <div class="flex justify-between items-start">
             <div>
-                <h1 style="font-size: 2rem; margin-bottom: 4px;">Keshav Soni</h1>
+                <h1 id="profileName" style="font-size:2rem;margin-bottom:4px;">Keshav Soni</h1>
                 <div class="flex items-center gap-3 mb-3">
-                    <span class="text-secondary font-medium">Software Engineering Student</span>
-                    <span style="color: var(--border-hover);">•</span>
-                    <span class="text-secondary">IIT Delhi</span>
+                    <span class="text-secondary font-medium" id="profileRole">Software Engineering Student</span>
+                    <span style="color:var(--border-hover);">•</span>
+                    <span class="text-secondary" id="profileUniversity">—</span>
                 </div>
-                <div class="flex gap-2 mb-4">
-                    <span class="badge badge-primary">Backend Aspirant</span>
+                <div class="flex gap-2 mb-4" id="profileBadges">
+                    <span class="badge badge-primary" id="profileGoalBadge">Backend Aspirant</span>
                     <span class="badge badge-success">Top 5% Consistency</span>
                 </div>
-                <p class="text-muted text-sm" style="max-width: 600px; line-height: 1.6;">
+                <p class="text-muted text-sm" id="profileBio" style="max-width:600px;line-height:1.6;">
                     <strong>AI Profile Summary:</strong> Consistently tackling medium/hard Data Structures problems. Strong foundational grasp on Graphs and Dynamic Programming. Currently preparing for Summer 2027 SWE Internships.
                 </p>
             </div>
             <div class="flex gap-3">
-                <button class="btn btn-secondary" data-action="share-profile"><i class="fas fa-share-alt"></i> Share</button>
-                <button class="btn btn-primary" data-navigate="/settings"><i class="fas fa-edit"></i> Edit Profile</button>
+                <button class="btn btn-secondary" id="shareProfileBtn"><i class="fas fa-share-alt"></i> Share</button>
+                <a href="/settings" class="btn btn-primary"><i class="fas fa-edit"></i> Edit Profile</a>
             </div>
         </div>
     </div>
 </div>
 
-<div class="dashboard-grid">
+<!-- Platform Links Row -->
+<div id="platformLinksRow" class="flex gap-3 mb-5" style="display:none!important;">
+    <a id="profileLCLink" href="#" target="_blank" class="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl border text-primary" style="background:var(--surface-2);border-color:var(--border-default);text-decoration:none;display:none;">
+        LeetCode <i class="fas fa-external-link-alt" style="font-size:0.65rem;"></i>
+    </a>
+    <a id="profileCFLink" href="#" target="_blank" class="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl border text-primary" style="background:var(--surface-2);border-color:var(--border-default);text-decoration:none;display:none;">
+        Codeforces <i class="fas fa-external-link-alt" style="font-size:0.65rem;"></i>
+    </a>
+</div>
 
+<div class="dashboard-grid">
     <!-- LEFT COLUMN (Span 8) -->
     <div class="col-span-8 flex flex-col gap-6">
 
         <!-- Statistics Grid -->
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4);">
-            <div class="card flex flex-col justify-between" style="padding: var(--space-4);">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-4);">
+            <div class="card flex flex-col justify-between" style="padding:var(--space-4);">
                 <div class="flex items-center gap-3 mb-3">
-                    <div style="width: 36px; height: 36px; border-radius: var(--radius-lg); background: var(--warning-muted); color: var(--warning); display: flex; align-items: center; justify-content: center; font-size: 1rem;">
-                        <i class="fas fa-fire"></i>
-                    </div>
+                    <div style="width:36px;height:36px;border-radius:var(--radius-lg);background:var(--warning-muted);color:var(--warning);display:flex;align-items:center;justify-content:center;"><i class="fas fa-fire"></i></div>
                     <span class="text-sm font-medium text-secondary">Coding Streak</span>
                 </div>
                 <div>
-                    <div style="font-size: 1.75rem; font-weight: 700; color: var(--text-main); line-height: 1;">14 Days</div>
+                    <div id="statStreak" style="font-size:1.75rem;font-weight:700;color:var(--text-main);line-height:1;">14 Days</div>
                     <div class="text-xs text-success mt-1"><i class="fas fa-arrow-up"></i> Personal Best</div>
                 </div>
             </div>
 
-            <div class="card flex flex-col justify-between" style="padding: var(--space-4);">
+            <div class="card flex flex-col justify-between" style="padding:var(--space-4);">
                 <div class="flex items-center gap-3 mb-3">
-                    <div style="width: 36px; height: 36px; border-radius: var(--radius-lg); background: var(--success-muted); color: var(--success); display: flex; align-items: center; justify-content: center; font-size: 1rem;">
-                        <i class="fas fa-code"></i>
-                    </div>
+                    <div style="width:36px;height:36px;border-radius:var(--radius-lg);background:var(--success-muted);color:var(--success);display:flex;align-items:center;justify-content:center;"><i class="fas fa-code"></i></div>
                     <span class="text-sm font-medium text-secondary">Problems Solved</span>
                 </div>
                 <div>
-                    <div style="font-size: 1.75rem; font-weight: 700; color: var(--text-main); line-height: 1;">156</div>
-                    <div class="text-xs text-muted mt-1">Top 15% of peers</div>
+                    <div id="statSolved" style="font-size:1.75rem;font-weight:700;color:var(--text-main);line-height:1;">—</div>
+                    <div class="text-xs text-muted mt-1" id="statSolvedSub">Link LeetCode account</div>
                 </div>
             </div>
 
-            <div class="card flex flex-col justify-between" style="padding: var(--space-4);">
+            <div class="card flex flex-col justify-between" style="padding:var(--space-4);">
                 <div class="flex items-center gap-3 mb-3">
-                    <div style="width: 36px; height: 36px; border-radius: var(--radius-lg); background: var(--primary-muted); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1rem;">
-                        <i class="fas fa-paper-plane"></i>
-                    </div>
+                    <div style="width:36px;height:36px;border-radius:var(--radius-lg);background:var(--primary-muted);color:var(--primary);display:flex;align-items:center;justify-content:center;"><i class="fas fa-paper-plane"></i></div>
                     <span class="text-sm font-medium text-secondary">Applications</span>
                 </div>
                 <div>
-                    <div style="font-size: 1.75rem; font-weight: 700; color: var(--text-main); line-height: 1;">28</div>
-                    <div class="text-xs text-muted mt-1">2 Active Processes</div>
+                    <div id="statApplications" style="font-size:1.75rem;font-weight:700;color:var(--text-main);line-height:1;">—</div>
+                    <div class="text-xs text-muted mt-1">Tracked in CareerOS</div>
                 </div>
             </div>
 
-            <div class="card flex flex-col justify-between" style="padding: var(--space-4);">
+            <div class="card flex flex-col justify-between" style="padding:var(--space-4);">
                 <div class="flex items-center gap-3 mb-3">
-                    <div style="width: 36px; height: 36px; border-radius: var(--radius-lg); background: var(--purple-muted); color: var(--purple); display: flex; align-items: center; justify-content: center; font-size: 1rem;">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
+                    <div style="width:36px;height:36px;border-radius:var(--radius-lg);background:var(--purple-muted);color:var(--purple);display:flex;align-items:center;justify-content:center;"><i class="fas fa-file-alt"></i></div>
                     <span class="text-sm font-medium text-secondary">Resume Score</span>
                 </div>
                 <div>
-                    <div style="font-size: 1.75rem; font-weight: 700; color: var(--text-main); line-height: 1;">92%</div>
-                    <div class="text-xs text-success mt-1"><i class="fas fa-arrow-up"></i> +5% vs last week</div>
+                    <div id="statResume" style="font-size:1.75rem;font-weight:700;color:var(--text-main);line-height:1;">—</div>
+                    <div class="text-xs text-muted mt-1" id="statResumeSub">Upload your resume</div>
                 </div>
             </div>
 
-            <div class="card flex flex-col justify-between" style="padding: var(--space-4);">
+            <div class="card flex flex-col justify-between" style="padding:var(--space-4);">
                 <div class="flex items-center gap-3 mb-3">
-                    <div style="width: 36px; height: 36px; border-radius: var(--radius-lg); background: var(--danger-muted); color: var(--danger); display: flex; align-items: center; justify-content: center; font-size: 1rem;">
-                        <i class="fas fa-user-tie"></i>
-                    </div>
+                    <div style="width:36px;height:36px;border-radius:var(--radius-lg);background:var(--danger-muted);color:var(--danger);display:flex;align-items:center;justify-content:center;"><i class="fas fa-user-tie"></i></div>
                     <span class="text-sm font-medium text-secondary">Mock Interviews</span>
                 </div>
                 <div>
-                    <div style="font-size: 1.75rem; font-weight: 700; color: var(--text-main); line-height: 1;">8/10</div>
+                    <div id="statInterviews" style="font-size:1.75rem;font-weight:700;color:var(--text-main);line-height:1;">8/10</div>
                     <div class="text-xs text-muted mt-1">Avg Score</div>
                 </div>
             </div>
 
-            <div class="card flex flex-col justify-between" style="padding: var(--space-4);">
+            <div class="card flex flex-col justify-between" style="padding:var(--space-4);">
                 <div class="flex items-center gap-3 mb-3">
-                    <div style="width: 36px; height: 36px; border-radius: var(--radius-lg); background: var(--text-faint); color: var(--surface-0); display: flex; align-items: center; justify-content: center; font-size: 1rem;">
-                        <i class="fas fa-route"></i>
-                    </div>
+                    <div style="width:36px;height:36px;border-radius:var(--radius-lg);background:var(--surface-3);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;"><i class="fas fa-route"></i></div>
                     <span class="text-sm font-medium text-secondary">Roadmap</span>
                 </div>
                 <div>
-                    <div style="font-size: 1.75rem; font-weight: 700; color: var(--text-main); line-height: 1;">Phase 2</div>
-                    <div class="text-xs text-muted mt-1">Core Algorithms</div>
+                    <div id="statRoadmap" style="font-size:1.25rem;font-weight:700;color:var(--text-main);line-height:1.2;">—</div>
+                    <div class="text-xs text-muted mt-1" id="statRoadmapProgress">Set up your roadmap</div>
                 </div>
             </div>
         </div>
 
-        <!-- Achievements Section -->
+        <!-- Achievements -->
         <div class="card">
             <div class="card-header">
                 <span class="card-title">Achievements</span>
-                <button type="button" class="text-sm text-primary font-medium cursor-pointer" data-action="view-achievements" style="background:none;border:none;padding:0;">View All</button>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4);">
-                <div style="background: var(--surface-0); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-4); display: flex; align-items: center; gap: var(--space-4);">
-                    <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #FDE68A, #F59E0B); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.2);">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);">
+                <div style="background:var(--surface-0);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:var(--space-4);display:flex;align-items:center;gap:var(--space-4);">
+                    <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#FDE68A,#F59E0B);display:flex;align-items:center;justify-content:center;color:white;font-size:1.25rem;box-shadow:0 4px 10px rgba(245,158,11,0.2);">
                         <i class="fas fa-star"></i>
                     </div>
-                    <div style="flex: 1;">
+                    <div style="flex:1;">
                         <div class="font-semibold text-sm mb-1">Consistency Master</div>
                         <div class="text-xs text-muted mb-2">Hit a 14-day coding streak</div>
-                        <div style="width: 100%; height: 6px; background: var(--border-muted); border-radius: 3px; overflow: hidden;">
-                            <div style="width: 100%; height: 100%; background: var(--warning); border-radius: 3px;"></div>
+                        <div style="width:100%;height:6px;background:var(--border-muted);border-radius:3px;overflow:hidden;">
+                            <div style="width:100%;height:100%;background:var(--warning);border-radius:3px;"></div>
                         </div>
                     </div>
                 </div>
-
-                <div style="background: var(--surface-0); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-4); display: flex; align-items: center; gap: var(--space-4);">
-                    <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #D8B4FE, #9333EA); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem; box-shadow: 0 4px 10px rgba(147, 51, 234, 0.2);">
+                <div style="background:var(--surface-0);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:var(--space-4);display:flex;align-items:center;gap:var(--space-4);" id="resumeAchievement">
+                    <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#D8B4FE,#9333EA);display:flex;align-items:center;justify-content:center;color:white;font-size:1.25rem;box-shadow:0 4px 10px rgba(147,51,234,0.2);">
                         <i class="fas fa-file-signature"></i>
                     </div>
-                    <div style="flex: 1;">
+                    <div style="flex:1;">
                         <div class="font-semibold text-sm mb-1">Resume Optimizer</div>
                         <div class="text-xs text-muted mb-2">Achieve a 90%+ ATS Score</div>
-                        <div style="width: 100%; height: 6px; background: var(--border-muted); border-radius: 3px; overflow: hidden;">
-                            <div style="width: 100%; height: 100%; background: var(--purple); border-radius: 3px;"></div>
+                        <div style="width:100%;height:6px;background:var(--border-muted);border-radius:3px;overflow:hidden;">
+                            <div id="resumeAchievBar" style="width:0%;height:100%;background:var(--purple);border-radius:3px;transition:width 1s ease;"></div>
                         </div>
                     </div>
                 </div>
-
-                <div style="background: var(--surface-0); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-4); display: flex; align-items: center; gap: var(--space-4);">
-                    <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #BFDBFE, #3B82F6); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.2);">
+                <div style="background:var(--surface-0);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:var(--space-4);display:flex;align-items:center;gap:var(--space-4);">
+                    <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#BFDBFE,#3B82F6);display:flex;align-items:center;justify-content:center;color:white;font-size:1.25rem;box-shadow:0 4px 10px rgba(59,130,246,0.2);">
                         <i class="fas fa-server"></i>
                     </div>
-                    <div style="flex: 1;">
+                    <div style="flex:1;">
                         <div class="font-semibold text-sm mb-1">Backend Builder</div>
                         <div class="text-xs text-muted mb-2">Solve 50 System Design problems</div>
-                        <div style="width: 100%; height: 6px; background: var(--border-muted); border-radius: 3px; overflow: hidden;">
-                            <div style="width: 35%; height: 100%; background: var(--primary); border-radius: 3px;"></div>
+                        <div style="width:100%;height:6px;background:var(--border-muted);border-radius:3px;overflow:hidden;">
+                            <div style="width:35%;height:100%;background:var(--primary);border-radius:3px;"></div>
                         </div>
                     </div>
                 </div>
-
-                <div style="background: var(--surface-0); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-4); display: flex; align-items: center; gap: var(--space-4); opacity: 0.6;">
-                    <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--surface-3); border: 2px dashed var(--border-hover); display: flex; align-items: center; justify-content: center; color: var(--text-faint); font-size: 1.25rem;">
+                <div style="background:var(--surface-0);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:var(--space-4);display:flex;align-items:center;gap:var(--space-4);opacity:0.55;">
+                    <div style="width:48px;height:48px;border-radius:50%;background:var(--surface-3);border:2px dashed var(--border-hover);display:flex;align-items:center;justify-content:center;color:var(--text-faint);font-size:1.25rem;">
                         <i class="fas fa-lock"></i>
                     </div>
-                    <div style="flex: 1;">
+                    <div style="flex:1;">
                         <div class="font-semibold text-sm mb-1">Interview Crusher</div>
                         <div class="text-xs text-muted mb-2">Score 9/10 in 3 mock interviews</div>
-                        <div style="width: 100%; height: 6px; background: var(--border-muted); border-radius: 3px; overflow: hidden;">
-                            <div style="width: 33%; height: 100%; background: var(--text-faint); border-radius: 3px;"></div>
+                        <div style="width:100%;height:6px;background:var(--border-muted);border-radius:3px;overflow:hidden;">
+                            <div style="width:33%;height:100%;background:var(--text-faint);border-radius:3px;"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Recent Activity Timeline -->
+        <!-- Recent Activity -->
         <div class="card">
-            <div class="card-header">
-                <span class="card-title">Recent Activity</span>
-            </div>
-            <div class="activity-feed" style="margin-left: 8px;">
+            <div class="card-header"><span class="card-title">Recent Activity</span></div>
+            <div class="activity-feed" style="margin-left:8px;" id="activityFeed">
                 <div class="activity-item">
-                    <div class="activity-dot" style="background: var(--success);"></div>
+                    <div class="activity-dot" style="background:var(--success);"></div>
                     <div>
                         <div class="activity-text">Solved <strong>Two Sum</strong> on LeetCode</div>
                         <div class="activity-time">2 hours ago</div>
                     </div>
                 </div>
                 <div class="activity-item">
-                    <div class="activity-dot" style="background: var(--primary);"></div>
+                    <div class="activity-dot" style="background:var(--primary);"></div>
                     <div>
                         <div class="activity-text">Applied to <strong>Amazon SDE Intern</strong> role</div>
                         <div class="activity-time">5 hours ago</div>
                     </div>
                 </div>
                 <div class="activity-item">
-                    <div class="activity-dot" style="background: var(--purple);"></div>
+                    <div class="activity-dot" style="background:var(--purple);"></div>
                     <div>
-                        <div class="activity-text">Resume score improved to <strong>92%</strong> (+5%)</div>
+                        <div class="activity-text">Resume analyzed — ATS Score updated</div>
                         <div class="activity-time">Yesterday</div>
                     </div>
                 </div>
                 <div class="activity-item">
-                    <div class="activity-dot" style="background: var(--warning);"></div>
+                    <div class="activity-dot" style="background:var(--warning);"></div>
                     <div>
-                        <div class="activity-text">Completed <strong>Trees & Graphs</strong> module</div>
+                        <div class="activity-text">Completed a roadmap task in <strong>Phase 2</strong></div>
                         <div class="activity-time">2 days ago</div>
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
 
-    <!-- RIGHT COLUMN (Span 4) -->
+    <!-- RIGHT COLUMN -->
     <div class="col-span-4 flex flex-col gap-6">
 
         <!-- Profile Completion -->
         <div class="card">
             <div class="flex justify-between items-center mb-2">
                 <span class="font-semibold text-sm">Profile Completion</span>
-                <span class="text-primary font-bold">85%</span>
+                <span class="text-primary font-bold" id="completionPct">0%</span>
             </div>
-            <div style="width: 100%; height: 8px; background: var(--primary-muted); border-radius: 4px; overflow: hidden; margin-bottom: var(--space-3);">
-                <div style="width: 85%; height: 100%; background: var(--primary); border-radius: 4px;"></div>
+            <div style="width:100%;height:8px;background:var(--primary-muted);border-radius:4px;overflow:hidden;margin-bottom:var(--space-3);">
+                <div id="completionBar" style="width:0%;height:100%;background:var(--primary);border-radius:4px;transition:width 1s ease;"></div>
             </div>
-            <p class="text-xs text-muted mb-3">Complete your profile to get better AI recommendations.</p>
-            <button class="btn btn-secondary w-full btn-sm" data-navigate="/settings">Complete Profile</button>
+            <div id="completionTips" class="text-xs text-muted mb-3">Complete your profile to get better AI recommendations.</div>
+            <a href="/settings" class="btn btn-secondary w-full btn-sm">Complete Profile</a>
         </div>
 
-        <!-- AI Insights Panel -->
-        <div class="card card-elevated" style="background: linear-gradient(to bottom, var(--surface-2), var(--surface-0)); border-top: 3px solid var(--primary);">
+        <!-- AI Insights -->
+        <div class="card card-elevated" style="background:linear-gradient(to bottom,var(--surface-2),var(--surface-0));border-top:3px solid var(--primary);">
             <div class="flex items-center gap-2 mb-4">
-                <i class="fas fa-sparkles text-primary"></i>
+                <i class="fas fa-robot text-primary"></i>
                 <h3 class="font-semibold text-sm">AI Profile Insights</h3>
             </div>
-            
-            <div class="flex flex-col gap-3">
-                <div style="background: var(--surface-2); border: 1px solid var(--border-muted); border-radius: var(--radius-lg); padding: var(--space-3);">
-                    <div class="flex items-center gap-2 mb-1">
-                        <i class="fas fa-chart-line text-success" style="font-size: 0.8rem;"></i>
-                        <span class="font-semibold text-sm">Consistency Improved</span>
-                    </div>
-                    <p class="text-xs text-muted leading-relaxed">Your problem-solving consistency improved by 18% this month. The 14-day streak is building strong muscle memory.</p>
+            <div class="flex flex-col gap-3" id="aiInsightsList">
+                <div style="background:var(--surface-2);border:1px solid var(--border-muted);border-radius:var(--radius-lg);padding:var(--space-3);">
+                    <div class="flex items-center gap-2 mb-1"><i class="fas fa-chart-line text-success" style="font-size:0.8rem;"></i><span class="font-semibold text-sm">Consistency Improved</span></div>
+                    <p class="text-xs text-muted leading-relaxed">Your problem-solving consistency improved this month. Keep up the daily practice habit.</p>
                 </div>
-
-                <div style="background: var(--surface-2); border: 1px solid var(--border-muted); border-radius: var(--radius-lg); padding: var(--space-3);">
-                    <div class="flex items-center gap-2 mb-1">
-                        <i class="fas fa-dumbbell text-primary" style="font-size: 0.8rem;"></i>
-                        <span class="font-semibold text-sm">Strengths Identified</span>
-                    </div>
-                    <p class="text-xs text-muted leading-relaxed">You are currently in the top 20% of users for Backend Development patterns. Keep leveraging this for specific roles.</p>
+                <div style="background:var(--surface-2);border:1px solid var(--border-muted);border-radius:var(--radius-lg);padding:var(--space-3);">
+                    <div class="flex items-center gap-2 mb-1"><i class="fas fa-dumbbell text-primary" style="font-size:0.8rem;"></i><span class="font-semibold text-sm">Strengths Identified</span></div>
+                    <p class="text-xs text-muted leading-relaxed">You are in the top 20% for Backend patterns. Leverage this in your interviews.</p>
                 </div>
-
-                <div style="background: var(--surface-2); border: 1px solid var(--border-muted); border-radius: var(--radius-lg); padding: var(--space-3);">
-                    <div class="flex items-center gap-2 mb-1">
-                        <i class="fas fa-bullseye text-warning" style="font-size: 0.8rem;"></i>
-                        <span class="font-semibold text-sm">Recommended Focus</span>
-                    </div>
-                    <p class="text-xs text-muted leading-relaxed">Your mock interview scores drop slightly on System Design questions. Focus on the upcoming DBMS revision module.</p>
+                <div style="background:var(--surface-2);border:1px solid var(--border-muted);border-radius:var(--radius-lg);padding:var(--space-3);" id="aiInsightDynamic">
+                    <div class="flex items-center gap-2 mb-1"><i class="fas fa-bullseye text-warning" style="font-size:0.8rem;"></i><span class="font-semibold text-sm">Recommended Focus</span></div>
+                    <p class="text-xs text-muted leading-relaxed" id="aiInsightDynamicText">Complete your profile to get personalized recommendations.</p>
                 </div>
             </div>
         </div>
@@ -273,25 +251,169 @@
         <!-- Readiness Widget -->
         <div class="card text-center">
             <h3 class="font-semibold text-sm mb-4 text-left">Internship Readiness</h3>
-            
-            <div style="position: relative; width: 140px; height: 140px; margin: 0 auto var(--space-4);">
-                <svg viewBox="0 0 100 100" style="width: 100%; height: 100%; transform: rotate(-90deg);">
-                    <!-- Background circle -->
+            <div style="position:relative;width:140px;height:140px;margin:0 auto var(--space-4);">
+                <svg viewBox="0 0 100 100" style="width:100%;height:100%;transform:rotate(-90deg);">
                     <circle cx="50" cy="50" r="40" fill="none" stroke="var(--border-muted)" stroke-width="12"></circle>
-                    <!-- Progress circle -->
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="var(--success)" stroke-width="12" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="62.8" style="transition: stroke-dashoffset 1s ease-out;"></circle>
+                    <circle id="readinessArc" cx="50" cy="50" r="40" fill="none" stroke="var(--success)" stroke-width="12" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="63" style="transition:stroke-dashoffset 1.5s ease-out;"></circle>
                 </svg>
-                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                    <span style="font-size: 1.5rem; font-weight: 700; color: var(--text-main);">75%</span>
-                    <span style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;">Ready</span>
+                <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                    <span id="readinessPct" style="font-size:1.5rem;font-weight:700;color:var(--text-main);">75%</span>
+                    <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.05em;">Ready</span>
                 </div>
             </div>
-            
-            <p class="text-xs text-muted">You are highly prepared for early-stage OA rounds. Interview readiness needs slight polish.</p>
+            <p class="text-xs text-muted" id="readinessDesc">You are well-prepared for early-stage OA rounds. Keep polishing your interview skills.</p>
         </div>
-
     </div>
-
 </div>
 
+{% endblock %}
+
+{% block dashboard_js %}
+<script>
+const PROFILE_KEY = 'careeros_profile';
+const CODING_KEY = 'careeros_coding';
+const ROADMAP_KEY = 'careeros_roadmap';
+
+function loadAll() {
+    try {
+        const p = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
+        const c = JSON.parse(localStorage.getItem(CODING_KEY) || '{}');
+        const r = JSON.parse(localStorage.getItem(ROADMAP_KEY) || 'null');
+        return { p, c, r };
+    } catch { return { p: {}, c: {}, r: null }; }
+}
+
+function computeCompletion(p, c) {
+    let score = 0;
+    const tips = [];
+    if (p.firstName && p.lastName) score += 20; else tips.push('Add your full name');
+    if (p.email) score += 10; else tips.push('Add your email');
+    if (p.university) score += 15; else tips.push('Add your university');
+    if (p.bio) score += 15; else tips.push('Write a short bio');
+    if (c.lcUsername || p.lcUsername) score += 20; else tips.push('Link your LeetCode account');
+    if (p.resumeScore) score += 20; else tips.push('Upload and analyze your resume');
+    return { score, tip: tips[0] || 'Your profile is complete!' };
+}
+
+function computeReadiness(p, c, r) {
+    let score = 40;
+    const total = (c.lcEasy||0)+(c.lcMedium||0)+(c.lcHard||0);
+    if (total > 50) score += 20;
+    if (total > 150) score += 10;
+    if (p.resumeScore && p.resumeScore >= 70) score += 15;
+    if (r) {
+        const tasks = (r.phases||[]).flatMap(ph => ph.tasks||[]);
+        const done = tasks.filter(t=>t.done).length;
+        if (tasks.length > 0) score += Math.round((done/tasks.length)*15);
+    }
+    return Math.min(100, score);
+}
+
+function updateUI() {
+    const { p, c, r } = loadAll();
+
+    // Name
+    const fullName = [p.firstName, p.lastName].filter(Boolean).join(' ') || 'Keshav Soni';
+    document.getElementById('profileName').textContent = fullName;
+    document.getElementById('profileRole').textContent = p.targetRole || 'Software Engineering Student';
+    document.getElementById('profileUniversity').textContent = p.university || '—';
+
+    // Bio
+    if (p.bio) {
+        document.getElementById('profileBio').innerHTML = `<strong>About:</strong> ${p.bio}`;
+    }
+
+    // Goal badge
+    if (r && r.goal) document.getElementById('profileGoalBadge').textContent = r.goal;
+
+    // Avatar
+    if (p.avatarImg) {
+        document.getElementById('profileAvatar').innerHTML = `<img src="${p.avatarImg}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    } else if (p.firstName) {
+        const initials = ((p.firstName[0]||'') + (p.lastName ? p.lastName[0] : '')).toUpperCase();
+        document.getElementById('profileAvatar').textContent = initials;
+    }
+
+    // Stats
+    const total = (c.lcEasy||0) + (c.lcMedium||0) + (c.lcHard||0);
+    if (total > 0) {
+        document.getElementById('statSolved').textContent = total;
+        document.getElementById('statSolvedSub').textContent = `Easy: ${c.lcEasy||0}  Med: ${c.lcMedium||0}  Hard: ${c.lcHard||0}`;
+    }
+    if (p.resumeScore) {
+        document.getElementById('statResume').textContent = p.resumeScore + '%';
+        const color = p.resumeScore >= 80 ? 'var(--success)' : p.resumeScore >= 60 ? 'var(--warning)' : 'var(--danger)';
+        document.getElementById('statResume').style.color = color;
+        document.getElementById('statResumeSub').textContent = p.resumeScore >= 80 ? 'Excellent ATS match' : 'Needs improvement';
+        document.getElementById('resumeAchievBar').style.width = Math.min(100, p.resumeScore) + '%';
+    }
+
+    // Roadmap
+    if (r) {
+        const tasks = (r.phases||[]).flatMap(ph => ph.tasks||[]);
+        const done = tasks.filter(t=>t.done).length;
+        const pct = tasks.length > 0 ? Math.round((done/tasks.length)*100) : 0;
+        const current = (r.phases||[]).find(ph => !(ph.tasks||[]).every(t=>t.done));
+        document.getElementById('statRoadmap').textContent = current ? current.title.replace(/\(.*?\)/,'').trim() : 'Complete!';
+        document.getElementById('statRoadmapProgress').textContent = `${pct}% complete · ${done}/${tasks.length} tasks`;
+    }
+
+    // Applications from API
+    fetch('/api/applications').then(r=>r.json()).then(apps => {
+        document.getElementById('statApplications').textContent = apps.length;
+    }).catch(()=>{});
+
+    // Platform links
+    const lcUser = c.lcUsername || p.lcUsername;
+    const cfUser = c.cfUsername || p.cfUsername;
+    const linksRow = document.getElementById('platformLinksRow');
+    if (lcUser || cfUser) linksRow.style.removeProperty('display');
+    if (lcUser) {
+        const lcLink = document.getElementById('profileLCLink');
+        lcLink.href = `https://leetcode.com/u/${lcUser}/`;
+        lcLink.style.display = 'flex';
+        lcLink.innerHTML = `<img src="https://leetcode.com/favicon.ico" style="width:14px;height:14px;" onerror="this.style.display='none'"> ${lcUser} <i class="fas fa-external-link-alt" style="font-size:0.6rem;"></i>`;
+    }
+    if (cfUser) {
+        const cfLink = document.getElementById('profileCFLink');
+        cfLink.href = `https://codeforces.com/profile/${cfUser}`;
+        cfLink.style.display = 'flex';
+        cfLink.innerHTML = `<img src="https://codeforces.com/favicon.ico" style="width:14px;height:14px;" onerror="this.style.display='none'"> ${cfUser} <i class="fas fa-external-link-alt" style="font-size:0.6rem;"></i>`;
+    }
+
+    // Profile completion
+    const { score, tip } = computeCompletion(p, c);
+    document.getElementById('completionPct').textContent = score + '%';
+    document.getElementById('completionBar').style.width = score + '%';
+    document.getElementById('completionTips').textContent = score < 100 ? `Next: ${tip}` : 'Profile complete! 🎉';
+
+    // Readiness
+    const readiness = computeReadiness(p, c, r);
+    document.getElementById('readinessPct').textContent = readiness + '%';
+    document.getElementById('readinessArc').setAttribute('stroke-dashoffset', String(251.2 * (1 - readiness/100)));
+    const rdColor = readiness >= 75 ? 'var(--success)' : readiness >= 50 ? 'var(--warning)' : 'var(--danger)';
+    document.getElementById('readinessArc').style.stroke = rdColor;
+    document.getElementById('readinessPct').style.color = rdColor;
+
+    // Dynamic AI insight
+    let insightText = 'Complete your profile to get personalized recommendations.';
+    if (!lcUser) insightText = 'Link your LeetCode account to unlock coding insights.';
+    else if (p.resumeScore && p.resumeScore < 75) insightText = 'Your resume score is below 75. Use the AI Resume Analyzer for improvement tips.';
+    else if (r) {
+        const tasks = (r.phases||[]).flatMap(ph=>ph.tasks||[]);
+        const pending = tasks.filter(t=>!t.done);
+        if (pending.length > 0) insightText = `You have ${pending.length} roadmap tasks pending. Focus on "${pending[0].text}" next.`;
+    } else insightText = 'Set up your AI roadmap to get a personalized study plan.';
+    document.getElementById('aiInsightDynamicText').textContent = insightText;
+
+    // Share button
+    document.getElementById('shareProfileBtn').addEventListener('click', () => {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(window.location.href).then(() => showToast('Profile link copied!', 'success'));
+        } else showToast('Profile link ready to share.', 'success');
+    });
+}
+
+document.addEventListener('DOMContentLoaded', updateUI);
+</script>
 {% endblock %}

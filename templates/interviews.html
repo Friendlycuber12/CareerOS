@@ -4,84 +4,326 @@
 <div class="page-header">
     <div>
         <h1>Mock Interviews</h1>
-        <p>Practice with AI and receive detailed feedback.</p>
+        <p>AI-powered practice for coding, behavioral and core CS subjects.</p>
     </div>
-    <button class="btn btn-primary" data-action="start-interview"><i class="fas fa-play"></i> Start Interview</button>
 </div>
 
 <div class="dashboard-grid">
-    <!-- Active Interview -->
-    <div class="card col-span-8 flex flex-col animate-fade-in-up" style="min-height:480px;">
+    <!-- Left: Interview Panel -->
+    <div class="card col-span-8 flex flex-col animate-fade-in-up" style="min-height:520px;">
+        <!-- Header -->
         <div class="flex justify-between items-center pb-3 mb-3 border-b">
             <div class="flex items-center gap-3">
-                <div class="avatar" style="background:var(--primary);">AI</div>
+                <div class="avatar" style="background:var(--primary);width:36px;height:36px;font-size:0.65rem;">AI</div>
                 <div>
-                    <div class="text-sm font-semibold">Technical: System Design</div>
-                    <div class="text-xs text-faint">Interviewer: Alex (Senior SWE)</div>
+                    <div class="text-sm font-semibold" id="interviewSessionTitle">AI Mock Interviewer</div>
+                    <div class="text-xs text-faint" id="interviewSessionSub">Select a category to start</div>
                 </div>
             </div>
-            <div class="font-mono text-primary font-bold" id="interviewTimer">45:00</div>
-        </div>
-
-        <div class="flex-1 overflow-y-auto mb-3 space-y-4" id="interviewThread">
-            <div class="flex gap-3">
-                <div class="avatar" style="width:28px;height:28px;background:var(--primary);font-size:0.55rem;">AI</div>
-                <div class="p-3 rounded-lg text-sm flex-1" style="background:var(--surface-0);">
-                    Hello! Today we're designing a distributed rate limiter. What key features and constraints would you consider?
-                </div>
-            </div>
-            <div class="flex gap-3 flex-row-reverse">
-                <div class="avatar" style="width:28px;height:28px;">KS</div>
-                <div class="p-3 rounded-lg text-sm flex-1" style="background:var(--primary-muted);border:1px solid rgba(47,129,247,0.3);">
-                    I would clarify if we're designing client-side or server-side, the expected scale, and if it needs to work across a distributed system.
-                </div>
-            </div>
-            <div class="flex gap-3">
-                <div class="avatar" style="width:28px;height:28px;background:var(--primary);font-size:0.55rem;">AI</div>
-                <div class="p-3 rounded-lg text-sm flex-1" style="background:var(--surface-0);">
-                    Good questions. Let's assume server-side, distributed, and 10M RPS globally. Walk me through your high-level design.
-                </div>
+            <div class="flex items-center gap-3">
+                <div class="font-mono text-primary font-bold text-sm" id="interviewTimer" style="display:none;">00:00</div>
+                <button class="btn btn-secondary btn-sm" id="endSessionBtn" style="display:none;"><i class="fas fa-stop"></i> End</button>
             </div>
         </div>
 
+        <!-- Thread -->
+        <div class="flex-1 overflow-y-auto mb-3 space-y-4" id="interviewThread" style="max-height:340px;">
+            <div class="text-center p-6 text-muted" id="interviewPlaceholder">
+                <i class="fas fa-user-tie" style="font-size:2rem;margin-bottom:12px;display:block;color:var(--border-hover);"></i>
+                <p class="text-sm">Choose a category from the right panel and start your mock interview.</p>
+            </div>
+        </div>
+
+        <!-- Input -->
         <div class="mt-auto">
             <div class="relative">
-                <textarea class="input-field w-full" id="interviewInput" rows="2" placeholder="Type your response..." style="resize:none;"></textarea>
-                <div class="absolute flex gap-2" style="right:8px;top:8px;">
-                    <button class="icon-btn text-primary" type="button" data-action="interview-send"><i class="fas fa-paper-plane"></i></button>
-                    <button class="icon-btn text-danger" type="button" data-action="mic-toggle" aria-pressed="false"><i class="fas fa-microphone"></i></button>
-                </div>
+                <textarea class="input-field w-full" id="interviewInput" rows="3" placeholder="Type your answer here... (Ctrl+Enter to send)" style="resize:none;padding-right:50px;"></textarea>
+                <button class="icon-btn text-primary absolute" type="button" id="interviewSendBtn" style="right:8px;top:8px;"><i class="fas fa-paper-plane"></i></button>
+            </div>
+            <div class="flex items-center justify-between mt-2">
+                <span class="text-xs text-faint">Ctrl+Enter to send · AI will give feedback on your answer</span>
+                <button class="btn btn-secondary btn-sm" id="skipQuestionBtn" style="display:none;"><i class="fas fa-forward"></i> Next Question</button>
             </div>
         </div>
     </div>
 
-    <!-- Past Interviews -->
-    <div class="card col-span-4 animate-fade-in-up delay-100">
-        <div class="card-header"><span class="card-title">Past Interviews</span></div>
-        <div class="card-body space-y-3">
-            <div class="p-3 rounded-lg" style="background:var(--surface-0);">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="text-sm font-medium">Behavioral Round</div>
-                    <span class="text-xs text-faint">2d ago</span>
-                </div>
-                <div class="flex items-center gap-2 mb-2">
-                    <span class="badge badge-success">8/10</span>
-                    <span class="badge badge-neutral">Amazon</span>
-                </div>
-                <a href="/interviews" class="text-primary text-xs font-medium" data-action="view-report" data-report="Behavioral Round">View Report →</a>
+    <!-- Right: Categories & History -->
+    <div class="col-span-4 flex flex-col gap-4">
+        <!-- Category Selector -->
+        <div class="card animate-fade-in-up delay-100">
+            <div class="card-header"><span class="card-title">Interview Categories</span></div>
+            <div class="space-y-2" id="categoryList">
+                <button class="category-btn w-full text-left p-3 rounded-lg transition-colors" data-category="dsa" data-label="Data Structures & Algorithms" style="background:var(--surface-0);border:1px solid var(--border-muted);" onmouseenter="this.style.borderColor='var(--primary)'" onmouseleave="this.style.borderColor=this.classList.contains('active-cat')?'var(--primary)':'var(--border-muted)'">
+                    <div class="flex items-center gap-3">
+                        <div style="width:32px;height:32px;border-radius:8px;background:var(--success-muted);display:flex;align-items:center;justify-content:center;"><i class="fas fa-code" style="color:var(--success);font-size:0.8rem;"></i></div>
+                        <div><div class="text-sm font-medium">DSA & Coding</div><div class="text-xs text-faint">Arrays, Trees, DP, Graphs</div></div>
+                    </div>
+                </button>
+                <button class="category-btn w-full text-left p-3 rounded-lg transition-colors" data-category="system_design" data-label="System Design" style="background:var(--surface-0);border:1px solid var(--border-muted);" onmouseenter="this.style.borderColor='var(--primary)'" onmouseleave="this.style.borderColor=this.classList.contains('active-cat')?'var(--primary)':'var(--border-muted)'">
+                    <div class="flex items-center gap-3">
+                        <div style="width:32px;height:32px;border-radius:8px;background:var(--primary-muted);display:flex;align-items:center;justify-content:center;"><i class="fas fa-server" style="color:var(--primary);font-size:0.8rem;"></i></div>
+                        <div><div class="text-sm font-medium">System Design</div><div class="text-xs text-faint">Scalability, APIs, Databases</div></div>
+                    </div>
+                </button>
+                <button class="category-btn w-full text-left p-3 rounded-lg transition-colors" data-category="os" data-label="Operating Systems" style="background:var(--surface-0);border:1px solid var(--border-muted);" onmouseenter="this.style.borderColor='var(--primary)'" onmouseleave="this.style.borderColor=this.classList.contains('active-cat')?'var(--primary)':'var(--border-muted)'">
+                    <div class="flex items-center gap-3">
+                        <div style="width:32px;height:32px;border-radius:8px;background:var(--warning-muted);display:flex;align-items:center;justify-content:center;"><i class="fas fa-microchip" style="color:var(--warning);font-size:0.8rem;"></i></div>
+                        <div><div class="text-sm font-medium">Operating Systems</div><div class="text-xs text-faint">Processes, Memory, Scheduling</div></div>
+                    </div>
+                </button>
+                <button class="category-btn w-full text-left p-3 rounded-lg transition-colors" data-category="dbms" data-label="DBMS" style="background:var(--surface-0);border:1px solid var(--border-muted);" onmouseenter="this.style.borderColor='var(--primary)'" onmouseleave="this.style.borderColor=this.classList.contains('active-cat')?'var(--primary)':'var(--border-muted)'">
+                    <div class="flex items-center gap-3">
+                        <div style="width:32px;height:32px;border-radius:8px;background:var(--purple-muted);display:flex;align-items:center;justify-content:center;"><i class="fas fa-database" style="color:var(--purple);font-size:0.8rem;"></i></div>
+                        <div><div class="text-sm font-medium">DBMS</div><div class="text-xs text-faint">SQL, Indexing, Transactions</div></div>
+                    </div>
+                </button>
+                <button class="category-btn w-full text-left p-3 rounded-lg transition-colors" data-category="networks" data-label="Computer Networks" style="background:var(--surface-0);border:1px solid var(--border-muted);" onmouseenter="this.style.borderColor='var(--primary)'" onmouseleave="this.style.borderColor=this.classList.contains('active-cat')?'var(--primary)':'var(--border-muted)'">
+                    <div class="flex items-center gap-3">
+                        <div style="width:32px;height:32px;border-radius:8px;background:var(--success-muted);display:flex;align-items:center;justify-content:center;"><i class="fas fa-network-wired" style="color:var(--success);font-size:0.8rem;"></i></div>
+                        <div><div class="text-sm font-medium">Computer Networks</div><div class="text-xs text-faint">TCP/IP, HTTP, DNS, TLS</div></div>
+                    </div>
+                </button>
+                <button class="category-btn w-full text-left p-3 rounded-lg transition-colors" data-category="behavioral" data-label="Behavioral" style="background:var(--surface-0);border:1px solid var(--border-muted);" onmouseenter="this.style.borderColor='var(--primary)'" onmouseleave="this.style.borderColor=this.classList.contains('active-cat')?'var(--primary)':'var(--border-muted)'">
+                    <div class="flex items-center gap-3">
+                        <div style="width:32px;height:32px;border-radius:8px;background:var(--danger-muted);display:flex;align-items:center;justify-content:center;"><i class="fas fa-comments" style="color:var(--danger);font-size:0.8rem;"></i></div>
+                        <div><div class="text-sm font-medium">Behavioral</div><div class="text-xs text-faint">STAR, Leadership, Teamwork</div></div>
+                    </div>
+                </button>
             </div>
-            <div class="p-3 rounded-lg" style="background:var(--surface-0);">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="text-sm font-medium">DSA: Trees & Graphs</div>
-                    <span class="text-xs text-faint">1w ago</span>
-                </div>
-                <div class="flex items-center gap-2 mb-2">
-                    <span class="badge badge-primary">6/10</span>
-                    <span class="badge badge-neutral">Google</span>
-                </div>
-                <a href="/interviews" class="text-primary text-xs font-medium" data-action="view-report" data-report="DSA: Trees & Graphs">View Report →</a>
-            </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="card animate-fade-in-up delay-200" style="background:linear-gradient(135deg,var(--primary-muted),var(--surface-0));border-top:3px solid var(--primary);">
+            <div class="text-xs font-semibold text-primary mb-2"><i class="fas fa-lightbulb"></i> Interview Tips</div>
+            <ul class="text-xs text-muted space-y-2" id="interviewTips">
+                <li>• Think out loud — explain your approach before coding.</li>
+                <li>• Clarify edge cases and constraints first.</li>
+                <li>• Start with brute force, then optimize.</li>
+                <li>• Use STAR format for behavioral questions.</li>
+            </ul>
         </div>
     </div>
 </div>
+
+<style>
+.active-cat { border-color: var(--primary) !important; background: var(--primary-muted) !important; }
+.ai-bubble { background: var(--surface-0); border-radius: 12px; padding: 14px 16px; font-size: 0.875rem; line-height: 1.6; }
+.user-bubble { background: var(--primary-muted); border: 1px solid rgba(59,130,246,0.3); border-radius: 12px; padding: 14px 16px; font-size: 0.875rem; line-height: 1.6; }
+.feedback-bubble { background: var(--success-muted); border: 1px solid rgba(34,197,94,0.3); border-radius: 12px; padding: 14px 16px; font-size: 0.875rem; line-height: 1.6; }
+pre { background: var(--surface-2); border: 1px solid var(--border-muted); border-radius: 8px; padding: 12px; font-size: 0.8rem; overflow-x:auto; margin-top: 8px; }
+</style>
+{% endblock %}
+
+{% block dashboard_js %}
+<script>
+let currentCategory = null;
+let sessionActive = false;
+let timerInterval = null;
+let elapsedSeconds = 0;
+let awaitingAnswer = false;
+let questionCount = 0;
+
+function formatTime(s) {
+    const m = Math.floor(s / 60);
+    return `${String(m).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}`;
+}
+
+function startTimer() {
+    elapsedSeconds = 0;
+    const timerEl = document.getElementById('interviewTimer');
+    timerEl.style.display = '';
+    timerInterval = setInterval(() => {
+        elapsedSeconds++;
+        timerEl.textContent = formatTime(elapsedSeconds);
+    }, 1000);
+}
+
+function stopTimer() {
+    clearInterval(timerInterval);
+    document.getElementById('interviewTimer').style.display = 'none';
+}
+
+function appendBubble(thread, role, html, type='normal') {
+    const row = document.createElement('div');
+    row.className = role === 'user' ? 'flex gap-3 flex-row-reverse' : 'flex gap-3';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar';
+    avatar.style.cssText = `width:28px;height:28px;flex-shrink:0;font-size:0.6rem;align-self:flex-start;`;
+    avatar.textContent = role === 'user' ? 'KS' : 'AI';
+    if (role !== 'user') avatar.style.background = 'var(--primary)';
+
+    const bubble = document.createElement('div');
+    bubble.style.maxWidth = '85%';
+    if (role === 'user') bubble.className = 'user-bubble';
+    else if (type === 'feedback') bubble.className = 'feedback-bubble';
+    else bubble.className = 'ai-bubble';
+    bubble.innerHTML = html;
+
+    row.append(avatar, bubble);
+    thread.appendChild(row);
+    thread.scrollTop = thread.scrollHeight;
+}
+
+function showTyping(thread) {
+    const row = document.createElement('div');
+    row.className = 'flex gap-3';
+    row.id = 'typingIndicator';
+    row.innerHTML = `
+        <div class="avatar" style="width:28px;height:28px;background:var(--primary);font-size:0.6rem;align-self:flex-start;flex-shrink:0;">AI</div>
+        <div class="ai-bubble flex items-center gap-2">
+            <span style="width:6px;height:6px;border-radius:50%;background:var(--text-muted);animation:pulse 1s infinite;display:inline-block;"></span>
+            <span style="width:6px;height:6px;border-radius:50%;background:var(--text-muted);animation:pulse 1s 0.2s infinite;display:inline-block;"></span>
+            <span style="width:6px;height:6px;border-radius:50%;background:var(--text-muted);animation:pulse 1s 0.4s infinite;display:inline-block;"></span>
+        </div>`;
+    thread.appendChild(row);
+    thread.scrollTop = thread.scrollHeight;
+}
+
+function removeTyping() {
+    document.getElementById('typingIndicator')?.remove();
+}
+
+async function startSession(category, label) {
+    currentCategory = category;
+    sessionActive = true;
+    questionCount = 0;
+    awaitingAnswer = false;
+
+    document.getElementById('interviewPlaceholder')?.remove();
+    document.getElementById('interviewSessionTitle').textContent = `${label} Interview`;
+    document.getElementById('interviewSessionSub').textContent = 'Session Active';
+    document.getElementById('endSessionBtn').style.display = '';
+    document.getElementById('skipQuestionBtn').style.display = '';
+    startTimer();
+
+    const thread = document.getElementById('interviewThread');
+    thread.innerHTML = '';
+
+    document.querySelectorAll('.category-btn').forEach(b => {
+        b.classList.remove('active-cat');
+        if (b.dataset.category === category) b.classList.add('active-cat');
+    });
+
+    showTyping(thread);
+    try {
+        const res = await fetch('/api/ai/interview', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ category, action: 'start', question_count: questionCount })
+        });
+        const data = await res.json();
+        removeTyping();
+        questionCount++;
+        awaitingAnswer = true;
+        appendBubble(thread, 'ai', formatAIText(data.message));
+    } catch(e) {
+        removeTyping();
+        appendBubble(thread, 'ai', 'Sorry, I had trouble starting the session. Please try again.');
+    }
+}
+
+function formatAIText(text) {
+    return text
+        .replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => `<pre><code>${code.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</code></pre>`)
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+}
+
+async function sendAnswer() {
+    if (!sessionActive) { showToast('Start a session first by selecting a category.', 'error'); return; }
+    const input = document.getElementById('interviewInput');
+    const answer = input.value.trim();
+    if (!answer) { showToast('Type your answer first.', 'error'); return; }
+
+    const thread = document.getElementById('interviewThread');
+    appendBubble(thread, 'user', answer.replace(/\n/g,'<br>'));
+    input.value = '';
+    awaitingAnswer = false;
+
+    showTyping(thread);
+    try {
+        const res = await fetch('/api/ai/interview', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ category: currentCategory, action: 'answer', answer, question_count: questionCount })
+        });
+        const data = await res.json();
+        removeTyping();
+        appendBubble(thread, 'ai', formatAIText(data.message), 'feedback');
+
+        if (data.next_question) {
+            setTimeout(() => {
+                showTyping(thread);
+                setTimeout(async () => {
+                    const res2 = await fetch('/api/ai/interview', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ category: currentCategory, action: 'next', question_count: questionCount })
+                    });
+                    const d2 = await res2.json();
+                    removeTyping();
+                    questionCount++;
+                    awaitingAnswer = true;
+                    appendBubble(thread, 'ai', formatAIText(d2.message));
+                }, 800);
+            }, 1200);
+        } else {
+            awaitingAnswer = true;
+        }
+    } catch(e) {
+        removeTyping();
+        appendBubble(thread, 'ai', 'Sorry, I encountered an error. Please try again.');
+    }
+}
+
+async function skipQuestion() {
+    if (!sessionActive) return;
+    const thread = document.getElementById('interviewThread');
+    showTyping(thread);
+    try {
+        const res = await fetch('/api/ai/interview', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ category: currentCategory, action: 'next', question_count: questionCount })
+        });
+        const data = await res.json();
+        removeTyping();
+        questionCount++;
+        awaitingAnswer = true;
+        appendBubble(thread, 'ai', formatAIText(data.message));
+    } catch(e) {
+        removeTyping();
+        appendBubble(thread, 'ai', 'Could not load next question. Please try again.');
+    }
+}
+
+function endSession() {
+    sessionActive = false;
+    stopTimer();
+    document.getElementById('endSessionBtn').style.display = 'none';
+    document.getElementById('skipQuestionBtn').style.display = 'none';
+    document.getElementById('interviewSessionSub').textContent = 'Session ended';
+    const thread = document.getElementById('interviewThread');
+    appendBubble(thread, 'ai', `<strong>Session Complete!</strong><br>You answered ${questionCount} question${questionCount !== 1 ? 's' : ''} in ${formatTime(elapsedSeconds)}.<br><br>Review your answers above and come back for more practice!`);
+    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active-cat'));
+    currentCategory = null;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            startSession(btn.dataset.category, btn.dataset.label);
+        });
+    });
+
+    document.getElementById('interviewSendBtn').addEventListener('click', sendAnswer);
+    document.getElementById('skipQuestionBtn').addEventListener('click', skipQuestion);
+    document.getElementById('endSessionBtn').addEventListener('click', endSession);
+
+    document.getElementById('interviewInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); sendAnswer(); }
+    });
+});
+</script>
 {% endblock %}

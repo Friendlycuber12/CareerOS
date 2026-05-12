@@ -4,96 +4,229 @@
 <div class="page-header">
     <div>
         <h1>Resume Analyzer</h1>
-        <p>ATS scoring and AI-powered improvement suggestions.</p>
+        <p>AI-powered ATS scoring and improvement suggestions.</p>
     </div>
-    <button class="btn btn-primary" data-action="upload-resume"><i class="fas fa-upload"></i> Upload Resume</button>
+    <label class="btn btn-primary" style="cursor:pointer;">
+        <i class="fas fa-upload"></i> Upload Resume
+        <input type="file" id="resumeFileInput" accept=".pdf,.doc,.docx,.txt" style="display:none;">
+    </label>
 </div>
 
+<!-- Upload Dropzone (shown when no resume) -->
+<div id="uploadDropzone" class="card mb-5 animate-fade-in-up" style="border:2px dashed var(--border-hover);background:var(--surface-0);text-align:center;padding:48px 24px;cursor:pointer;">
+    <i class="fas fa-file-upload" style="font-size:2.5rem;color:var(--border-hover);margin-bottom:16px;display:block;"></i>
+    <h3 class="font-semibold mb-2">Drop your resume here</h3>
+    <p class="text-sm text-muted mb-4">PDF, DOC, DOCX or TXT · Max 10MB</p>
+    <label class="btn btn-primary" style="cursor:pointer;">
+        <i class="fas fa-folder-open"></i> Choose File
+        <input type="file" accept=".pdf,.doc,.docx,.txt" style="display:none;" id="dropzoneInput">
+    </label>
+</div>
+
+<!-- Analysis Loading -->
+<div id="analysisLoading" style="display:none;" class="card mb-5 text-center p-8">
+    <i class="fas fa-circle-notch fa-spin text-primary" style="font-size:2rem;margin-bottom:16px;display:block;"></i>
+    <h3 class="font-semibold mb-2">Analyzing your resume...</h3>
+    <p class="text-sm text-muted">AI is reading your resume and computing your ATS score. This takes a few seconds.</p>
+</div>
+
+<!-- Results (hidden until analysis complete) -->
+<div id="analysisResults" style="display:none;">
 <div class="dashboard-grid mb-5">
-    <!-- ATS Score -->
+    <!-- ATS Score Ring -->
     <div class="card col-span-4 animate-fade-in-up">
         <div class="flex flex-col items-center text-center p-4">
-            <div class="relative flex items-center justify-center mb-4" style="width:120px;height:120px;">
-                <svg viewBox="0 0 100 100" style="transform:rotate(-90deg);width:120px;height:120px;">
-                    <circle cx="50" cy="50" r="42" fill="none" stroke="var(--surface-0)" stroke-width="6"></circle>
-                    <circle cx="50" cy="50" r="42" fill="none" stroke="var(--success)" stroke-width="6" stroke-dasharray="264" stroke-dashoffset="21" style="transition:stroke-dashoffset 1s ease;"></circle>
+            <div class="relative flex items-center justify-center mb-4" style="width:130px;height:130px;">
+                <svg viewBox="0 0 100 100" style="transform:rotate(-90deg);width:130px;height:130px;">
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="var(--surface-0)" stroke-width="7"></circle>
+                    <circle id="atsScoreArc" cx="50" cy="50" r="42" fill="none" stroke="var(--success)" stroke-width="7" stroke-dasharray="264" stroke-dashoffset="264" style="transition:stroke-dashoffset 1.2s ease;"></circle>
                 </svg>
                 <div class="absolute flex flex-col items-center">
-                    <span class="text-2xl font-bold text-success">92</span>
-                    <span class="text-xs text-faint uppercase tracking-wider">Score</span>
+                    <span class="text-3xl font-bold" id="atsScoreNum" style="color:var(--success);">—</span>
+                    <span class="text-xs text-faint uppercase tracking-wider">ATS Score</span>
                 </div>
             </div>
-            <h3 class="font-semibold mb-1">Excellent Fit</h3>
-            <p class="text-xs text-muted">Passes most ATS checks for "Software Engineer" roles.</p>
+            <h3 class="font-semibold mb-1" id="atsScoreLabel">Analyzing...</h3>
+            <p class="text-xs text-muted" id="atsScoreDesc"></p>
+            <div class="mt-4 w-full">
+                <div class="text-xs text-faint mb-2" id="resumeFileName"></div>
+                <label class="btn btn-secondary w-full btn-sm" style="cursor:pointer;">
+                    <i class="fas fa-sync-alt"></i> Analyze New Resume
+                    <input type="file" accept=".pdf,.doc,.docx,.txt" style="display:none;" id="reanalyzeInput">
+                </label>
+            </div>
         </div>
     </div>
 
-    <!-- Metrics -->
+    <!-- ATS Metrics -->
     <div class="card col-span-8 animate-fade-in-up delay-100">
         <div class="card-header"><span class="card-title">ATS Analysis</span></div>
-        <div class="card-body grid grid-cols-2 gap-3">
-            <div class="p-3 rounded-lg" style="background:var(--surface-0);">
-                <div class="flex justify-between mb-1">
-                    <span class="text-sm font-medium"><i class="fas fa-check-circle text-success" style="margin-right:6px;"></i>Action Verbs</span>
-                    <span class="text-success text-xs font-medium">Strong</span>
-                </div>
-                <p class="text-xs text-faint">85% of bullets start with strong action verbs.</p>
-            </div>
-            <div class="p-3 rounded-lg" style="background:var(--surface-0);">
-                <div class="flex justify-between mb-1">
-                    <span class="text-sm font-medium"><i class="fas fa-check-circle text-success" style="margin-right:6px;"></i>Measurable</span>
-                    <span class="text-success text-xs font-medium">Great</span>
-                </div>
-                <p class="text-xs text-faint">Metrics in 60% of experience bullets.</p>
-            </div>
-            <div class="p-3 rounded-lg" style="background:var(--surface-0);">
-                <div class="flex justify-between mb-1">
-                    <span class="text-sm font-medium"><i class="fas fa-exclamation-triangle text-warning" style="margin-right:6px;"></i>Keywords</span>
-                    <span class="text-warning text-xs font-medium">Improve</span>
-                </div>
-                <p class="text-xs text-faint">Missing: "Docker", "Kubernetes", "GraphQL".</p>
-            </div>
-            <div class="p-3 rounded-lg" style="background:var(--surface-0);">
-                <div class="flex justify-between mb-1">
-                    <span class="text-sm font-medium"><i class="fas fa-check-circle text-success" style="margin-right:6px;"></i>Formatting</span>
-                    <span class="text-success text-xs font-medium">Perfect</span>
-                </div>
-                <p class="text-xs text-faint">No tables or complex formatting breaking ATS.</p>
-            </div>
+        <div class="card-body grid grid-cols-2 gap-3" id="atsMetricsGrid">
         </div>
     </div>
 
-    <!-- Skills & Suggestions -->
-    <div class="card col-span-12 animate-fade-in-up delay-200">
-        <div class="card-body grid grid-cols-2 gap-6">
-            <div>
-                <h3 class="card-title mb-3">Extracted Skills</h3>
-                <div class="flex flex-wrap gap-2">
-                    <span class="badge badge-primary">Python</span>
-                    <span class="badge badge-primary">JavaScript</span>
-                    <span class="badge badge-primary">React</span>
-                    <span class="badge badge-primary">Node.js</span>
-                    <span class="badge badge-primary">SQL</span>
-                    <span class="badge badge-primary">MongoDB</span>
-                    <span class="badge badge-primary">AWS</span>
-                    <span class="badge badge-primary">Git</span>
-                    <span class="badge badge-primary">REST APIs</span>
-                </div>
-            </div>
-            <div>
-                <h3 class="card-title mb-3">AI Suggestions</h3>
-                <div class="space-y-3">
-                    <div class="flex gap-3 text-sm">
-                        <i class="fas fa-arrow-right text-primary mt-1" style="flex-shrink:0;"></i>
-                        <div><span class="font-medium">Quantify impact:</span><span class="text-muted block mt-1">"Reduced response time by 40% via Redis caching"</span></div>
-                    </div>
-                    <div class="flex gap-3 text-sm">
-                        <i class="fas fa-arrow-right text-primary mt-1" style="flex-shrink:0;"></i>
-                        <div><span class="font-medium">Add teamwork context:</span><span class="text-muted block mt-1">Mention cross-functional collaboration in your last project.</span></div>
-                    </div>
-                </div>
-            </div>
+    <!-- Extracted Skills -->
+    <div class="card col-span-6 animate-fade-in-up delay-200">
+        <div class="card-header"><span class="card-title">Extracted Skills</span></div>
+        <div class="card-body">
+            <div class="flex flex-wrap gap-2" id="skillsList"></div>
+        </div>
+    </div>
+
+    <!-- Missing Keywords -->
+    <div class="card col-span-6 animate-fade-in-up delay-200">
+        <div class="card-header"><span class="card-title">Missing Keywords</span></div>
+        <div class="card-body">
+            <p class="text-xs text-muted mb-3">Add these to improve your ATS score for Software Engineer roles:</p>
+            <div class="flex flex-wrap gap-2" id="missingKeywordsList"></div>
+        </div>
+    </div>
+
+    <!-- AI Suggestions -->
+    <div class="card col-span-12 animate-fade-in-up delay-300">
+        <div class="card-header">
+            <span class="card-title"><i class="fas fa-robot text-primary" style="margin-right:8px;"></i>AI Suggestions to Enhance Your Resume</span>
+        </div>
+        <div class="card-body">
+            <div id="aiSuggestionsList" class="space-y-4"></div>
         </div>
     </div>
 </div>
+</div>
+{% endblock %}
+
+{% block dashboard_js %}
+<script>
+const PROFILE_KEY = 'careeros_profile';
+
+function getScoreColor(score) {
+    if (score >= 80) return 'var(--success)';
+    if (score >= 60) return 'var(--warning)';
+    return 'var(--danger)';
+}
+
+function getScoreLabel(score) {
+    if (score >= 85) return 'Excellent Fit';
+    if (score >= 70) return 'Good Match';
+    if (score >= 55) return 'Needs Improvement';
+    return 'Major Issues Found';
+}
+
+function getScoreDesc(score) {
+    if (score >= 85) return 'Passes most ATS systems for Software Engineer roles.';
+    if (score >= 70) return 'Will pass many ATS filters. A few improvements recommended.';
+    if (score >= 55) return 'Some ATS systems may filter this out. Follow suggestions below.';
+    return 'Likely to be rejected by ATS. Significant improvements needed.';
+}
+
+function metricIcon(status) {
+    if (status === 'strong' || status === 'good' || status === 'great' || status === 'perfect') return '<i class="fas fa-check-circle text-success" style="margin-right:6px;"></i>';
+    if (status === 'improve' || status === 'weak') return '<i class="fas fa-exclamation-triangle text-warning" style="margin-right:6px;"></i>';
+    return '<i class="fas fa-times-circle text-danger" style="margin-right:6px;"></i>';
+}
+
+function metricBadge(status) {
+    if (['strong','good','great','perfect'].includes(status)) return '<span class="text-success text-xs font-medium">' + status.charAt(0).toUpperCase() + status.slice(1) + '</span>';
+    if (['improve','weak'].includes(status)) return '<span class="text-warning text-xs font-medium">Improve</span>';
+    return '<span class="text-danger text-xs font-medium">Issue</span>';
+}
+
+function renderResults(data) {
+    const score = data.ats_score || 0;
+    const color = getScoreColor(score);
+    const offset = 264 * (1 - score / 100);
+    document.getElementById('atsScoreArc').style.stroke = color;
+    document.getElementById('atsScoreArc').style.strokeDashoffset = String(offset);
+    document.getElementById('atsScoreNum').textContent = score;
+    document.getElementById('atsScoreNum').style.color = color;
+    document.getElementById('atsScoreLabel').textContent = getScoreLabel(score);
+    document.getElementById('atsScoreDesc').textContent = getScoreDesc(score);
+
+    const metricsGrid = document.getElementById('atsMetricsGrid');
+    metricsGrid.innerHTML = (data.metrics || []).map(m => `
+        <div class="p-3 rounded-lg" style="background:var(--surface-0);">
+            <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">${metricIcon(m.status)}${m.name}</span>
+                ${metricBadge(m.status)}
+            </div>
+            <p class="text-xs text-faint">${m.description}</p>
+        </div>
+    `).join('');
+
+    const skillsList = document.getElementById('skillsList');
+    skillsList.innerHTML = (data.skills || []).map(s =>
+        `<span class="badge badge-primary">${s}</span>`
+    ).join('');
+
+    const missingList = document.getElementById('missingKeywordsList');
+    missingList.innerHTML = (data.missing_keywords || []).map(k =>
+        `<span class="badge" style="background:var(--danger-muted);color:var(--danger);">${k}</span>`
+    ).join('');
+
+    const suggestionsList = document.getElementById('aiSuggestionsList');
+    suggestionsList.innerHTML = (data.suggestions || []).map((s, i) => `
+        <div class="flex gap-4 p-4 rounded-lg" style="background:var(--surface-0);border:1px solid var(--border-muted);">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--primary-muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;color:var(--primary);font-size:0.85rem;">${i+1}</div>
+            <div>
+                <div class="font-semibold text-sm mb-1">${s.title}</div>
+                <div class="text-sm text-muted">${s.detail}</div>
+                ${s.example ? `<div class="mt-2 p-2 rounded text-xs font-mono" style="background:var(--surface-2);border:1px solid var(--border-muted);color:var(--primary);">${s.example}</div>` : ''}
+            </div>
+        </div>
+    `).join('');
+
+    document.getElementById('analysisLoading').style.display = 'none';
+    document.getElementById('analysisResults').style.display = '';
+    document.getElementById('uploadDropzone').style.display = 'none';
+
+    const profile = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
+    profile.resumeScore = score;
+    localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+}
+
+async function analyzeResume(file) {
+    document.getElementById('uploadDropzone').style.display = 'none';
+    document.getElementById('analysisResults').style.display = 'none';
+    document.getElementById('analysisLoading').style.display = '';
+    document.getElementById('resumeFileName').textContent = `File: ${file.name}`;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const res = await fetch('/api/ai/resume', { method: 'POST', body: formData });
+        if (!res.ok) throw new Error('Analysis failed');
+        const data = await res.json();
+        renderResults(data);
+        showToast('Resume analyzed successfully!', 'success');
+    } catch (e) {
+        document.getElementById('analysisLoading').style.display = 'none';
+        document.getElementById('uploadDropzone').style.display = '';
+        showToast('Analysis failed. Please try again.', 'error');
+    }
+}
+
+function setupFileInput(inputEl) {
+    inputEl.addEventListener('change', e => {
+        if (e.target.files[0]) analyzeResume(e.target.files[0]);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    setupFileInput(document.getElementById('resumeFileInput'));
+    setupFileInput(document.getElementById('dropzoneInput'));
+    setupFileInput(document.getElementById('reanalyzeInput'));
+
+    const dropzone = document.getElementById('uploadDropzone');
+    dropzone.addEventListener('click', () => document.getElementById('dropzoneInput').click());
+    dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.style.borderColor = 'var(--primary)'; });
+    dropzone.addEventListener('dragleave', () => { dropzone.style.borderColor = 'var(--border-hover)'; });
+    dropzone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropzone.style.borderColor = 'var(--border-hover)';
+        const file = e.dataTransfer.files[0];
+        if (file) analyzeResume(file);
+    });
+});
+</script>
 {% endblock %}

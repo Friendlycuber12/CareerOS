@@ -6,3 +6,5 @@ sqlalchemy
 psycopg[binary]
 gunicorn
 pytest
+openai
+PyPDF2

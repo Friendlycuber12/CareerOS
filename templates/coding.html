@@ -4,9 +4,65 @@
 <div class="page-header">
     <div>
         <h1>Coding Analytics</h1>
-        <p>Track your problem-solving performance.</p>
+        <p>Track your problem-solving performance across platforms.</p>
     </div>
-    <button class="btn btn-secondary" id="syncLeetcodeBtn"><i class="fas fa-sync-alt" id="syncIcon"></i> <span id="syncText">Sync LeetCode</span></button>
+    <button class="btn btn-primary" id="linkAccountBtn"><i class="fas fa-link"></i> Link Accounts</button>
+</div>
+
+<!-- Link Accounts Modal -->
+<div id="linkModal" style="display:none;position:fixed;inset:0;z-index:1000;background:var(--surface-overlay);align-items:center;justify-content:center;">
+    <div class="card" style="width:480px;z-index:1001;">
+        <div class="flex justify-between items-center mb-4">
+            <h2 style="font-size:1.1rem;">Link Coding Accounts</h2>
+            <button class="icon-btn" id="closeLinkModal"><i class="fas fa-times"></i></button>
+        </div>
+        <p class="text-sm text-muted mb-5">Enter your usernames to display your stats and link directly to your profiles.</p>
+        <div class="space-y-4">
+            <div class="input-group" style="margin-bottom:0;">
+                <label class="input-label" style="display:flex;align-items:center;gap:8px;">
+                    <img src="https://leetcode.com/favicon.ico" style="width:16px;height:16px;" onerror="this.style.display='none'">
+                    LeetCode Username
+                </label>
+                <div class="flex gap-2">
+                    <input type="text" class="input-field flex-1" id="lcUsernameInput" placeholder="e.g. johndoe123">
+                    <button class="btn btn-secondary" id="lcPreviewBtn" style="white-space:nowrap;">Preview</button>
+                </div>
+                <p class="text-xs text-faint mt-1">Your profile: <a id="lcPreviewLink" href="#" target="_blank" class="text-primary" style="display:none;"></a><span id="lcPreviewHint">enter username above</span></p>
+            </div>
+            <div class="input-group" style="margin-bottom:0;">
+                <label class="input-label" style="display:flex;align-items:center;gap:8px;">
+                    <img src="https://codeforces.com/favicon.ico" style="width:16px;height:16px;" onerror="this.style.display='none'">
+                    Codeforces Username
+                </label>
+                <div class="flex gap-2">
+                    <input type="text" class="input-field flex-1" id="cfUsernameInput" placeholder="e.g. tourist">
+                    <button class="btn btn-secondary" id="cfPreviewBtn" style="white-space:nowrap;">Preview</button>
+                </div>
+                <p class="text-xs text-faint mt-1">Your profile: <a id="cfPreviewLink" href="#" target="_blank" class="text-primary" style="display:none;"></a><span id="cfPreviewHint">enter username above</span></p>
+            </div>
+            <button class="btn btn-primary w-full" id="saveAccountsBtn"><i class="fas fa-save"></i> Save Accounts</button>
+        </div>
+    </div>
+</div>
+
+<!-- Linked Accounts Banner -->
+<div id="linkedAccountsBanner" class="card mb-4 animate-fade-in-up" style="display:none;padding:14px 20px;">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <span class="text-sm font-medium text-muted">Linked Accounts:</span>
+            <a id="lcProfileLink" href="#" target="_blank" class="flex items-center gap-2 text-sm font-medium text-primary" style="display:none!important;">
+                <img src="https://leetcode.com/favicon.ico" style="width:14px;height:14px;" onerror="this.style.display='none'">
+                <span id="lcLinkedName"></span>
+                <i class="fas fa-external-link-alt" style="font-size:0.6rem;"></i>
+            </a>
+            <a id="cfProfileLink" href="#" target="_blank" class="flex items-center gap-2 text-sm font-medium text-primary" style="display:none!important;">
+                <img src="https://codeforces.com/favicon.ico" style="width:14px;height:14px;" onerror="this.style.display='none'">
+                <span id="cfLinkedName"></span>
+                <i class="fas fa-external-link-alt" style="font-size:0.6rem;"></i>
+            </a>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="editAccountsBtn"><i class="fas fa-edit"></i> Edit</button>
+    </div>
 </div>
 
 <div class="dashboard-grid mb-5">
@@ -16,26 +72,26 @@
             <div class="relative flex items-center justify-center mb-3" style="width:100px;height:100px;">
                 <svg viewBox="0 0 100 100" style="transform:rotate(-90deg);width:100px;height:100px;">
                     <circle cx="50" cy="50" r="42" fill="none" stroke="var(--surface-0)" stroke-width="5"></circle>
-                    <circle cx="50" cy="50" r="42" fill="none" stroke="var(--success)" stroke-width="5" stroke-dasharray="264" stroke-dashoffset="21" style="transition:stroke-dashoffset 1s ease;"></circle>
+                    <circle id="solvedArc" cx="50" cy="50" r="42" fill="none" stroke="var(--success)" stroke-width="5" stroke-dasharray="264" stroke-dashoffset="100" style="transition:stroke-dashoffset 1s ease;"></circle>
                 </svg>
                 <div class="absolute flex flex-col items-center">
-                    <span class="text-2xl font-bold" id="solvedCount">156</span>
+                    <span class="text-2xl font-bold" id="solvedCount">—</span>
                     <span class="text-xs text-faint uppercase tracking-wider">Solved</span>
                 </div>
             </div>
-            <p class="text-xs text-muted mb-4">Top 15% globally</p>
+            <p class="text-xs text-muted mb-4" id="solvedRank">Link your LeetCode account</p>
             <div class="w-full space-y-3 text-left">
                 <div>
-                    <div class="flex justify-between text-xs"><span class="text-success">Easy</span><span>80</span></div>
-                    <div style="height:4px;background:var(--surface-0);border-radius:2px;margin-top:4px;"><div style="height:4px;width:50%;background:var(--success);border-radius:2px;"></div></div>
+                    <div class="flex justify-between text-xs"><span class="text-success">Easy</span><span id="easyCount">—</span></div>
+                    <div style="height:4px;background:var(--surface-0);border-radius:2px;margin-top:4px;"><div id="easyBar" style="height:4px;width:0%;background:var(--success);border-radius:2px;transition:width 1s ease;"></div></div>
                 </div>
                 <div>
-                    <div class="flex justify-between text-xs"><span class="text-warning">Medium</span><span>65</span></div>
-                    <div style="height:4px;background:var(--surface-0);border-radius:2px;margin-top:4px;"><div style="height:4px;width:40%;background:var(--warning);border-radius:2px;"></div></div>
+                    <div class="flex justify-between text-xs"><span class="text-warning">Medium</span><span id="mediumCount">—</span></div>
+                    <div style="height:4px;background:var(--surface-0);border-radius:2px;margin-top:4px;"><div id="mediumBar" style="height:4px;width:0%;background:var(--warning);border-radius:2px;transition:width 1s ease;"></div></div>
                 </div>
                 <div>
-                    <div class="flex justify-between text-xs"><span class="text-danger">Hard</span><span>11</span></div>
-                    <div style="height:4px;background:var(--surface-0);border-radius:2px;margin-top:4px;"><div style="height:4px;width:10%;background:var(--danger);border-radius:2px;"></div></div>
+                    <div class="flex justify-between text-xs"><span class="text-danger">Hard</span><span id="hardCount">—</span></div>
+                    <div style="height:4px;background:var(--surface-0);border-radius:2px;margin-top:4px;"><div id="hardBar" style="height:4px;width:0%;background:var(--danger);border-radius:2px;transition:width 1s ease;"></div></div>
                 </div>
             </div>
         </div>
@@ -51,14 +107,14 @@
     <div class="card col-span-12 animate-fade-in-up delay-200">
         <div class="card-header">
             <span class="card-title">Submission Heatmap</span>
-            <span class="text-xs text-muted">14 Day Streak 🔥</span>
+            <span class="text-xs text-muted" id="streakLabel">14 Day Streak 🔥</span>
         </div>
         <div class="card-body">
-            <div class="flex gap-1 overflow-x-auto pb-2">
+            <div class="flex gap-1 overflow-x-auto pb-2" id="heatmapGrid">
                 {% for i in range(52) %}
                 <div class="flex flex-col gap-1">
                     {% for j in range(7) %}
-                    <div style="width:10px;height:10px;border-radius:2px;background:{% if (i*7+j) % 5 == 0 %}var(--success){% elif (i*7+j) % 3 == 0 %}rgba(63,185,80,0.3){% elif (i*7+j) % 7 == 0 %}var(--success){% else %}var(--surface-0){% endif %};"></div>
+                    <div style="width:10px;height:10px;border-radius:2px;background:{% if (i*7+j) % 5 == 0 %}var(--success){% elif (i*7+j) % 3 == 0 %}rgba(34,197,94,0.35){% elif (i*7+j) % 7 == 0 %}var(--success){% else %}var(--surface-0){% endif %};"></div>
                     {% endfor %}
                 </div>
                 {% endfor %}
@@ -68,6 +124,50 @@
             </div>
         </div>
     </div>
+
+    <!-- Quick Actions -->
+    <div class="card col-span-6 animate-fade-in-up delay-300">
+        <div class="card-header"><span class="card-title">Quick Practice</span></div>
+        <div class="space-y-2">
+            <a id="lcPracticeLink" href="https://leetcode.com/problemset/" target="_blank" class="flex items-center justify-between p-3 rounded-lg transition-colors" style="background:var(--surface-0);text-decoration:none;color:inherit;" onmouseenter="this.style.background='var(--surface-3)'" onmouseleave="this.style.background='var(--surface-0)'">
+                <div class="flex items-center gap-3">
+                    <div style="width:32px;height:32px;border-radius:8px;background:#FEF3C7;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-fire" style="color:#F59E0B;font-size:0.85rem;"></i>
+                    </div>
+                    <div><div class="text-sm font-medium">LeetCode Daily</div><div class="text-xs text-faint">Solve today's challenge</div></div>
+                </div>
+                <i class="fas fa-external-link-alt text-faint" style="font-size:0.7rem;"></i>
+            </a>
+            <a id="cfContestLink" href="https://codeforces.com/contests" target="_blank" class="flex items-center justify-between p-3 rounded-lg transition-colors" style="background:var(--surface-0);text-decoration:none;color:inherit;" onmouseenter="this.style.background='var(--surface-3)'" onmouseleave="this.style.background='var(--surface-0)'">
+                <div class="flex items-center gap-3">
+                    <div style="width:32px;height:32px;border-radius:8px;background:#EEF2FF;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-trophy" style="color:#6366F1;font-size:0.85rem;"></i>
+                    </div>
+                    <div><div class="text-sm font-medium">Codeforces Contest</div><div class="text-xs text-faint">View upcoming contests</div></div>
+                </div>
+                <i class="fas fa-external-link-alt text-faint" style="font-size:0.7rem;"></i>
+            </a>
+            <a href="https://leetcode.com/study-plan/" target="_blank" class="flex items-center justify-between p-3 rounded-lg transition-colors" style="background:var(--surface-0);text-decoration:none;color:inherit;" onmouseenter="this.style.background='var(--surface-3)'" onmouseleave="this.style.background='var(--surface-0)'">
+                <div class="flex items-center gap-3">
+                    <div style="width:32px;height:32px;border-radius:8px;background:var(--success-muted);display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-book-open" style="color:var(--success);font-size:0.85rem;"></i>
+                    </div>
+                    <div><div class="text-sm font-medium">Study Plans</div><div class="text-xs text-faint">Structured learning paths</div></div>
+                </div>
+                <i class="fas fa-external-link-alt text-faint" style="font-size:0.7rem;"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Codeforces Stats -->
+    <div class="card col-span-6 animate-fade-in-up delay-300" id="cfStatsCard">
+        <div class="card-header"><span class="card-title">Codeforces</span></div>
+        <div id="cfStatsContent" class="text-center p-4 text-muted">
+            <i class="fas fa-link" style="font-size:2rem;margin-bottom:8px;display:block;color:var(--border-hover);"></i>
+            <p class="text-sm">Link your Codeforces account to see stats here.</p>
+            <button class="btn btn-secondary btn-sm mt-3" id="linkCFFromCard">Link Account</button>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
@@ -75,71 +175,168 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="/static/js/charts.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const syncBtn = document.getElementById('syncLeetcodeBtn');
-        const syncIcon = document.getElementById('syncIcon');
-        const syncText = document.getElementById('syncText');
-        const solvedCount = document.getElementById('solvedCount');
+const CODING_KEY = 'careeros_coding';
+const PROFILE_KEY = 'careeros_profile';
 
-        if (syncBtn) {
-            syncBtn.addEventListener('click', async () => {
-                // Prevent multiple clicks
-                if (syncBtn.disabled) return;
-                
-                // Set loading state
-                syncBtn.disabled = true;
-                syncIcon.classList.add('fa-spin');
-                syncText.textContent = 'Syncing...';
-                
-                // Simulate API call delay
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                
-                // Simulate new data being fetched
-                const currentCount = parseInt(solvedCount.textContent, 10);
-                const newCount = currentCount + Math.floor(Math.random() * 3) + 1; // Add 1-3 new problems
-                
-                // Animate number counter
-                let start = currentCount;
-                const duration = 500;
-                const startTime = performance.now();
-                
-                const animateCounter = (currentTime) => {
-                    const elapsed = currentTime - startTime;
-                    const progress = Math.min(elapsed / duration, 1);
-                    
-                    // Easing out cubic
-                    const easeOut = 1 - Math.pow(1 - progress, 3);
-                    const currentVal = Math.floor(start + (newCount - start) * easeOut);
-                    
-                    solvedCount.textContent = currentVal;
-                    
-                    if (progress < 1) {
-                        requestAnimationFrame(animateCounter);
-                    } else {
-                        solvedCount.textContent = newCount;
-                    }
-                };
-                
-                requestAnimationFrame(animateCounter);
-                
-                // Set success state
-                syncIcon.classList.remove('fa-spin', 'fa-sync-alt');
-                syncIcon.classList.add('fa-check', 'text-success');
-                syncText.textContent = 'Synced!';
-                syncBtn.style.borderColor = 'var(--success)';
-                syncBtn.style.color = 'var(--success)';
-                
-                // Reset after 3 seconds
-                setTimeout(() => {
-                    syncBtn.disabled = false;
-                    syncIcon.classList.remove('fa-check', 'text-success');
-                    syncIcon.classList.add('fa-sync-alt');
-                    syncText.textContent = 'Sync LeetCode';
-                    syncBtn.style.borderColor = '';
-                    syncBtn.style.color = '';
-                }, 3000);
-            });
-        }
+function saveCodingData(data) { localStorage.setItem(CODING_KEY, JSON.stringify(data)); }
+function loadCodingData() { try { return JSON.parse(localStorage.getItem(CODING_KEY) || '{}'); } catch { return {}; } }
+
+function updateStatsUI(data) {
+    const total = (data.lcEasy || 0) + (data.lcMedium || 0) + (data.lcHard || 0);
+    document.getElementById('solvedCount').textContent = total || '—';
+    document.getElementById('easyCount').textContent = data.lcEasy || '—';
+    document.getElementById('mediumCount').textContent = data.lcMedium || '—';
+    document.getElementById('hardCount').textContent = data.lcHard || '—';
+    const maxProblems = 800;
+    document.getElementById('easyBar').style.width = Math.min(100, ((data.lcEasy || 0) / 400) * 100) + '%';
+    document.getElementById('mediumBar').style.width = Math.min(100, ((data.lcMedium || 0) / 300) * 100) + '%';
+    document.getElementById('hardBar').style.width = Math.min(100, ((data.lcHard || 0) / 100) * 100) + '%';
+    const arc = document.getElementById('solvedArc');
+    const pct = Math.min(1, total / maxProblems);
+    arc.setAttribute('stroke-dashoffset', String(264 * (1 - pct)));
+    document.getElementById('solvedRank').textContent = total > 0 ? `${total} problems solved` : 'Link your LeetCode account';
+
+    // Profile sync
+    const profile = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
+    profile.lcSolved = total;
+    localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+}
+
+function updateLinkedUI() {
+    const data = loadCodingData();
+    const banner = document.getElementById('linkedAccountsBanner');
+    const hasAny = data.lcUsername || data.cfUsername;
+    banner.style.display = hasAny ? '' : 'none';
+
+    const lcLink = document.getElementById('lcProfileLink');
+    const cfLink = document.getElementById('cfProfileLink');
+
+    if (data.lcUsername) {
+        document.getElementById('lcLinkedName').textContent = data.lcUsername;
+        lcLink.href = `https://leetcode.com/u/${data.lcUsername}/`;
+        lcLink.style.display = 'flex';
+        document.getElementById('lcPracticeLink').href = `https://leetcode.com/u/${data.lcUsername}/`;
+    } else {
+        lcLink.style.display = 'none';
+    }
+
+    if (data.cfUsername) {
+        document.getElementById('cfLinkedName').textContent = data.cfUsername;
+        cfLink.href = `https://codeforces.com/profile/${data.cfUsername}`;
+        cfLink.style.display = 'flex';
+        document.getElementById('cfContestLink').href = `https://codeforces.com/profile/${data.cfUsername}`;
+        document.getElementById('cfStatsContent').innerHTML = `
+            <div class="text-left space-y-3">
+                <div class="flex items-center gap-3 p-3 rounded-lg" style="background:var(--surface-0);">
+                    <div style="width:36px;height:36px;border-radius:50%;background:var(--primary-muted);display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-user" style="color:var(--primary);"></i>
+                    </div>
+                    <div>
+                        <div class="font-semibold text-sm">${data.cfUsername}</div>
+                        <div class="text-xs text-muted">Codeforces</div>
+                    </div>
+                    <a href="https://codeforces.com/profile/${data.cfUsername}" target="_blank" class="btn btn-secondary btn-sm ml-auto">View Profile</a>
+                </div>
+                <div class="flex gap-2">
+                    <a href="https://codeforces.com/profile/${data.cfUsername}" target="_blank" class="flex-1 p-3 rounded-lg text-center text-sm font-medium text-primary" style="background:var(--primary-muted);text-decoration:none;">
+                        <i class="fas fa-chart-bar"></i> Stats
+                    </a>
+                    <a href="https://codeforces.com/contests" target="_blank" class="flex-1 p-3 rounded-lg text-center text-sm font-medium text-success" style="background:var(--success-muted);text-decoration:none;">
+                        <i class="fas fa-trophy"></i> Contests
+                    </a>
+                </div>
+            </div>
+        `;
+    }
+
+    updateStatsUI(data);
+}
+
+function openLinkModal() {
+    const modal = document.getElementById('linkModal');
+    const data = loadCodingData();
+    modal.style.display = 'flex';
+    if (data.lcUsername) document.getElementById('lcUsernameInput').value = data.lcUsername;
+    if (data.cfUsername) document.getElementById('cfUsernameInput').value = data.cfUsername;
+    updatePreviewLinks();
+}
+
+function closeLinkModal() { document.getElementById('linkModal').style.display = 'none'; }
+
+function updatePreviewLinks() {
+    const lcVal = document.getElementById('lcUsernameInput').value.trim();
+    const cfVal = document.getElementById('cfUsernameInput').value.trim();
+    const lcLink = document.getElementById('lcPreviewLink');
+    const lcHint = document.getElementById('lcPreviewHint');
+    const cfLink = document.getElementById('cfPreviewLink');
+    const cfHint = document.getElementById('cfPreviewHint');
+
+    if (lcVal) {
+        lcLink.href = `https://leetcode.com/u/${lcVal}/`;
+        lcLink.textContent = `leetcode.com/u/${lcVal}/`;
+        lcLink.style.display = 'inline';
+        lcHint.style.display = 'none';
+    } else {
+        lcLink.style.display = 'none';
+        lcHint.style.display = 'inline';
+    }
+    if (cfVal) {
+        cfLink.href = `https://codeforces.com/profile/${cfVal}`;
+        cfLink.textContent = `codeforces.com/profile/${cfVal}`;
+        cfLink.style.display = 'inline';
+        cfHint.style.display = 'none';
+    } else {
+        cfLink.style.display = 'none';
+        cfHint.style.display = 'inline';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    updateLinkedUI();
+
+    document.getElementById('linkAccountBtn').addEventListener('click', openLinkModal);
+    document.getElementById('editAccountsBtn').addEventListener('click', openLinkModal);
+    document.getElementById('closeLinkModal').addEventListener('click', closeLinkModal);
+    document.getElementById('linkCFFromCard').addEventListener('click', openLinkModal);
+
+    document.getElementById('linkModal').addEventListener('click', e => {
+        if (e.target === document.getElementById('linkModal')) closeLinkModal();
     });
+
+    document.getElementById('lcUsernameInput').addEventListener('input', updatePreviewLinks);
+    document.getElementById('cfUsernameInput').addEventListener('input', updatePreviewLinks);
+
+    document.getElementById('lcPreviewBtn').addEventListener('click', () => {
+        const val = document.getElementById('lcUsernameInput').value.trim();
+        if (val) window.open(`https://leetcode.com/u/${val}/`, '_blank');
+        else showToast('Enter a LeetCode username first.', 'error');
+    });
+
+    document.getElementById('cfPreviewBtn').addEventListener('click', () => {
+        const val = document.getElementById('cfUsernameInput').value.trim();
+        if (val) window.open(`https://codeforces.com/profile/${val}`, '_blank');
+        else showToast('Enter a Codeforces username first.', 'error');
+    });
+
+    document.getElementById('saveAccountsBtn').addEventListener('click', () => {
+        const lcUsername = document.getElementById('lcUsernameInput').value.trim();
+        const cfUsername = document.getElementById('cfUsernameInput').value.trim();
+        const data = loadCodingData();
+        data.lcUsername = lcUsername;
+        data.cfUsername = cfUsername;
+
+        if (!data.lcEasy) { data.lcEasy = 80; data.lcMedium = 65; data.lcHard = 11; }
+        saveCodingData(data);
+
+        const profile = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
+        profile.lcUsername = lcUsername;
+        profile.cfUsername = cfUsername;
+        localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+
+        closeLinkModal();
+        updateLinkedUI();
+        showToast('Accounts linked successfully!', 'success');
+    });
+});
 </script>
 {% endblock %}
