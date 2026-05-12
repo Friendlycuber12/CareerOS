@@ -13,30 +13,30 @@
 </div>
 
 <!-- Choose Roadmap Modal -->
-<div id="roadmapModal" style="display:none;position:fixed;inset:0;z-index:1000;background:var(--surface-overlay);display:flex;align-items:center;justify-content:center;" class="hidden">
+<div id="roadmapModal" style="display:none;position:fixed;inset:0;z-index:1000;background:var(--surface-overlay);align-items:center;justify-content:center;">
     <div class="card" style="width:520px;max-height:80vh;overflow-y:auto;z-index:1001;">
         <div class="flex justify-between items-center mb-4">
-            <h2 style="font-size:1.25rem;">Choose Your Roadmap</h2>
+            <h2 style="font-size:1.2rem;font-weight:700;">Choose Your Roadmap</h2>
             <button class="icon-btn" id="closeRoadmapModal"><i class="fas fa-times"></i></button>
         </div>
-        <p class="text-sm text-muted mb-4">Tell us your goal and we'll generate a personalized study roadmap for you.</p>
+        <p class="text-sm text-muted mb-5">Select your target role and we'll generate a personalised AI study plan.</p>
         <div class="space-y-4">
             <div class="input-group" style="margin-bottom:0;">
-                <label class="input-label">Your Goal</label>
+                <label class="input-label">Target Role</label>
                 <select class="input-field" id="roadmapGoalSelect">
                     <option value="">-- Select a goal --</option>
-                    <option value="SWE Intern (Backend)">SWE Intern – Backend Focus</option>
-                    <option value="SWE Intern (Frontend)">SWE Intern – Frontend Focus</option>
-                    <option value="SWE Intern (Fullstack)">SWE Intern – Fullstack</option>
+                    <option value="SWE Intern - Backend">SWE Intern – Backend Focus</option>
+                    <option value="SWE Intern - Frontend">SWE Intern – Frontend Focus</option>
+                    <option value="SWE Intern - Fullstack">SWE Intern – Fullstack</option>
                     <option value="Data Science Intern">Data Science / ML Intern</option>
-                    <option value="DevOps / SRE Intern">DevOps / SRE Intern</option>
+                    <option value="DevOps/SRE Intern">DevOps / SRE Intern</option>
                     <option value="Product Manager Intern">Product Manager Intern</option>
                     <option value="custom">Custom Goal...</option>
                 </select>
             </div>
             <div class="input-group" id="customGoalGroup" style="margin-bottom:0;display:none;">
                 <label class="input-label">Describe Your Goal</label>
-                <input type="text" class="input-field" id="customGoalInput" placeholder="e.g. Quant trading intern at hedge fund">
+                <input type="text" class="input-field" id="customGoalInput" placeholder="e.g. Quant trading intern at Jane Street">
             </div>
             <div class="input-group" style="margin-bottom:0;">
                 <label class="input-label">Current Level</label>
@@ -62,44 +62,84 @@
     </div>
 </div>
 
-<!-- Progress Bar -->
-<div class="dashboard-grid mb-5">
-    <div class="card col-span-12 animate-fade-in-up">
-        <div class="flex justify-between items-center mb-3">
-            <div>
-                <h3 class="card-title" id="roadmapTitle">Loading your roadmap...</h3>
-                <div class="text-xs text-faint mt-1" id="roadmapMeta"></div>
-            </div>
-            <div class="text-xl font-bold text-primary" id="roadmapProgressText">0%</div>
+<!-- AI Quota Warning Banner -->
+<div id="quotaBanner" style="display:none;" class="card mb-4" style="border-color:rgba(245,158,11,0.4);background:var(--warning-muted);">
+    <div class="flex items-center gap-3">
+        <i class="fas fa-exclamation-triangle text-warning"></i>
+        <div class="flex-1">
+            <div class="text-sm font-semibold" style="color:var(--warning);">OpenAI Quota Exceeded</div>
+            <div class="text-xs text-muted">A default roadmap was loaded. Add credits at <a href="https://platform.openai.com/account/billing" target="_blank" class="text-primary">platform.openai.com/account/billing</a> to generate AI roadmaps.</div>
         </div>
-        <div style="height:8px;background:var(--surface-0);border-radius:4px;">
-            <div id="roadmapProgressBar" style="height:8px;width:0%;background:linear-gradient(90deg,var(--primary),var(--purple));border-radius:4px;transition:width 0.8s ease;"></div>
-        </div>
+        <button onclick="this.closest('#quotaBanner').style.display='none'" class="icon-btn text-faint"><i class="fas fa-times"></i></button>
     </div>
 </div>
 
+<!-- Progress Bar -->
+<div class="card mb-5 animate-fade-in-up">
+    <div class="flex justify-between items-center mb-3">
+        <div>
+            <h3 class="card-title" id="roadmapTitle">Loading your roadmap...</h3>
+            <div class="text-xs text-faint mt-1" id="roadmapMeta"></div>
+        </div>
+        <div style="text-align:right;">
+            <div class="text-xl font-bold text-primary" id="roadmapProgressText">0%</div>
+            <div class="text-xs text-faint" id="tasksCompletedLabel">0 / 0 tasks</div>
+        </div>
+    </div>
+    <div style="height:8px;background:var(--surface-0);border-radius:4px;">
+        <div id="roadmapProgressBar" style="height:8px;width:0%;background:linear-gradient(90deg,var(--primary),var(--purple));border-radius:4px;transition:width 0.8s ease;"></div>
+    </div>
+    <div class="flex gap-4 mt-3 text-xs text-faint" id="phaseSummary"></div>
+</div>
+
 <!-- Roadmap Phases -->
-<div id="roadmapPhasesContainer" class="relative animate-fade-in-up delay-100" style="padding-left:24px;border-left:2px solid var(--border-muted);">
+<div id="roadmapPhasesContainer" class="animate-fade-in-up delay-100" style="padding-left:28px;border-left:2px solid var(--border-muted);">
     <div class="text-center p-8 text-muted">
-        <i class="fas fa-route" style="font-size:2rem;margin-bottom:12px;display:block;color:var(--border-hover);"></i>
-        <p class="text-sm">Select a roadmap goal to get started, or we'll load your default roadmap.</p>
+        <i class="fas fa-circle-notch fa-spin text-primary" style="font-size:1.5rem;display:block;margin-bottom:12px;"></i>
+        <p class="text-sm">Loading your roadmap...</p>
     </div>
 </div>
 
 <style>
 .roadmap-phase { margin-bottom: 20px; position: relative; }
-.phase-dot {
-    position: absolute; left: -33px; top: 6px;
-    width: 16px; height: 16px; border-radius: 50%;
-    border: 2px solid var(--surface-1);
-    display: flex; align-items: center; justify-content: center;
+.phase-connector {
+    position: absolute;
+    left: -33px;
+    top: 22px;
+    bottom: -20px;
+    width: 2px;
+    background: var(--border-muted);
 }
-.phase-dot i { font-size: 7px; color: white; }
-.task-item { display: flex; align-items: center; gap: 12px; font-size: 0.875rem; cursor: pointer; padding: 6px 0; }
+.phase-connector.done { background: var(--success); }
+.phase-dot {
+    position: absolute;
+    left: -37px;
+    top: 6px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--border-default);
+    background: var(--surface-2);
+    transition: all 0.3s;
+    z-index: 1;
+}
+.task-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.875rem;
+    padding: 6px 0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.task-item:hover { background: var(--surface-0); padding-left: 6px; margin-left: -6px; padding-right: 6px; }
 .task-item input[type=checkbox] { accent-color: var(--primary); width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
-.task-item .task-label { transition: all 0.2s; }
-.task-item input:checked ~ .task-label { text-decoration: line-through; color: var(--text-muted); }
-.hidden { display: none !important; }
+.task-item.done .task-label { text-decoration: line-through; color: var(--text-faint); }
+.phase-card-locked { filter: grayscale(0.3); }
 </style>
 {% endblock %}
 
@@ -108,196 +148,206 @@
 const ROADMAP_KEY = 'careeros_roadmap';
 const PROFILE_KEY = 'careeros_profile';
 
-function saveRoadmap(data) {
-    localStorage.setItem(ROADMAP_KEY, JSON.stringify(data));
-}
-
-function loadRoadmap() {
-    try {
-        const raw = localStorage.getItem(ROADMAP_KEY);
-        return raw ? JSON.parse(raw) : null;
-    } catch { return null; }
-}
+function saveRoadmap(data) { localStorage.setItem(ROADMAP_KEY, JSON.stringify(data)); }
+function loadRoadmap() { try { return JSON.parse(localStorage.getItem(ROADMAP_KEY)); } catch { return null; } }
 
 function computeProgress(phases) {
     let total = 0, done = 0;
-    phases.forEach(p => {
-        (p.tasks || []).forEach(t => {
-            total++;
-            if (t.done) done++;
-        });
-    });
-    return total === 0 ? 0 : Math.round((done / total) * 100);
+    (phases || []).forEach(p => (p.tasks || []).forEach(t => { total++; if (t.done) done++; }));
+    return { total, done, pct: total === 0 ? 0 : Math.round((done / total) * 100) };
+}
+
+function getPhaseStatus(phases, pi) {
+    const phase = phases[pi];
+    const tasks = phase.tasks || [];
+    const allDone = tasks.length > 0 && tasks.every(t => t.done);
+    if (allDone) return 'completed';
+    // Unlock this phase only if ALL previous phases are done (or it's the first)
+    const prevAllDone = phases.slice(0, pi).every(p => (p.tasks || []).every(t => t.done));
+    if (prevAllDone) return 'in-progress';
+    return 'locked';
+}
+
+function esc(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 function renderPhases(phases) {
     const container = document.getElementById('roadmapPhasesContainer');
     if (!phases || phases.length === 0) {
-        container.innerHTML = '<p class="text-muted text-sm text-center p-6">No phases found. Try generating a roadmap.</p>';
+        container.innerHTML = '<p class="text-muted text-sm text-center p-6">No phases found.</p>';
         return;
     }
 
-    const progress = computeProgress(phases);
-    document.getElementById('roadmapProgressText').textContent = progress + '%';
-    document.getElementById('roadmapProgressBar').style.width = progress + '%';
+    const { total, done, pct } = computeProgress(phases);
+    document.getElementById('roadmapProgressText').textContent = pct + '%';
+    document.getElementById('roadmapProgressBar').style.width = pct + '%';
+    document.getElementById('tasksCompletedLabel').textContent = `${done} / ${total} tasks`;
+
+    // Phase summary
+    const completedCount = phases.filter((_, i) => getPhaseStatus(phases, i) === 'completed').length;
+    document.getElementById('phaseSummary').innerHTML =
+        `<span>${completedCount}/${phases.length} phases complete</span>` +
+        (completedCount < phases.length ? `<span>Current: ${phases[completedCount]?.title?.replace(/\(.*?\)/, '').trim() || ''}</span>` : '<span>All phases done! 🎉</span>');
 
     container.innerHTML = phases.map((phase, pi) => {
-        const allDone = (phase.tasks || []).every(t => t.done);
-        const anyDone = (phase.tasks || []).some(t => t.done);
-        const status = allDone ? 'completed' : (anyDone ? 'in-progress' : (pi === 0 ? 'in-progress' : 'locked'));
-        
-        const dotColor = status === 'completed' ? 'var(--success)' : (status === 'in-progress' ? 'var(--primary)' : 'var(--surface-4)');
-        const dotIcon = status === 'completed' ? '<i class="fas fa-check" style="font-size:7px;color:white;"></i>' : '';
-        const badgeClass = status === 'completed' ? 'badge-success' : (status === 'in-progress' ? 'badge-primary' : 'badge-neutral');
-        const badgeLabel = status === 'completed' ? 'Completed' : (status === 'in-progress' ? 'In Progress' : 'Upcoming');
-        const cardBorder = status === 'completed' ? 'rgba(34,197,94,0.3)' : (status === 'in-progress' ? 'var(--primary)' : 'var(--border-default)');
-        const opacity = status === 'locked' ? '0.5' : '1';
+        const status = getPhaseStatus(phases, pi);
+        const isLast = pi === phases.length - 1;
+        const tasksArr = phase.tasks || [];
+        const doneTasks = tasksArr.filter(t => t.done).length;
 
-        const tasksHtml = (phase.tasks || []).map((task, ti) => `
-            <label class="task-item">
-                <input type="checkbox" class="roadmap-task-check" data-phase="${pi}" data-task="${ti}" ${task.done ? 'checked' : ''}>
-                <span class="task-label">${escHtml(task.text)}</span>
+        const dotColor = status === 'completed' ? 'var(--success)' : status === 'in-progress' ? 'var(--primary)' : 'var(--surface-4)';
+        const dotIcon = status === 'completed'
+            ? '<i class="fas fa-check" style="font-size:8px;color:white;"></i>'
+            : status === 'in-progress'
+            ? `<span style="width:7px;height:7px;border-radius:50%;background:var(--primary);display:inline-block;"></span>`
+            : '';
+        const badgeClass = status === 'completed' ? 'badge-success' : status === 'in-progress' ? 'badge-primary' : 'badge-neutral';
+        const badgeLabel = status === 'completed' ? '✓ Completed' : status === 'in-progress' ? '⚡ In Progress' : 'Upcoming';
+        const borderColor = status === 'completed' ? 'rgba(34,197,94,0.35)' : status === 'in-progress' ? 'var(--primary)' : 'var(--border-default)';
+        const opacity = status === 'locked' ? '0.55' : '1';
+
+        const tasksHtml = tasksArr.map((task, ti) => `
+            <label class="task-item ${task.done ? 'done' : ''}" data-phase="${pi}" data-task="${ti}">
+                <input type="checkbox" class="roadmap-task-check" data-phase="${pi}" data-task="${ti}" ${task.done ? 'checked' : ''} ${status === 'locked' ? 'disabled' : ''}>
+                <span class="task-label">${esc(task.text)}</span>
             </label>
         `).join('');
 
-        const tagsHtml = (phase.tags || []).map(t => `<span class="badge badge-neutral">${escHtml(t)}</span>`).join('');
+        const tagsHtml = (phase.tags || []).map(t => `<span class="badge badge-neutral" style="font-size:0.7rem;">${esc(t)}</span>`).join('');
+
+        const phaseProgress = tasksArr.length > 0 ? Math.round((doneTasks / tasksArr.length) * 100) : 0;
 
         return `
-            <div class="roadmap-phase" style="opacity:${opacity};">
-                <div class="phase-dot" style="background:${dotColor};">${dotIcon}</div>
-                <div class="card" style="border-color:${cardBorder};">
-                    <div class="flex justify-between items-center mb-2">
-                        <h4 class="font-semibold" style="color:${status === 'completed' ? 'var(--success)' : (status === 'in-progress' ? 'var(--primary)' : 'inherit')};">
-                            ${escHtml(phase.title)}
-                        </h4>
+            <div class="roadmap-phase" style="opacity:${opacity};" id="phase-${pi}">
+                ${!isLast ? `<div class="phase-connector ${status === 'completed' ? 'done' : ''}"></div>` : ''}
+                <div class="phase-dot" style="background:${dotColor};border-color:${dotColor};">${dotIcon}</div>
+                <div class="card ${status === 'locked' ? 'phase-card-locked' : ''}" style="border-color:${borderColor};${status === 'in-progress' ? 'box-shadow:0 0 0 2px rgba(59,130,246,0.15);' : ''}">
+                    <div class="flex justify-between items-start mb-1">
+                        <h4 class="font-semibold" style="color:${status === 'completed' ? 'var(--success)' : status === 'in-progress' ? 'var(--primary)' : 'var(--text-main)'};">${esc(phase.title)}</h4>
                         <span class="badge ${badgeClass}">${badgeLabel}</span>
                     </div>
-                    <p class="text-sm text-muted mb-3">${escHtml(phase.description || '')}</p>
+                    <p class="text-sm text-muted mb-3">${esc(phase.description || '')}</p>
                     ${tagsHtml ? `<div class="flex gap-2 flex-wrap mb-3">${tagsHtml}</div>` : ''}
-                    ${tasksHtml ? `<div class="space-y-1 pt-3 border-t">${tasksHtml}</div>` : ''}
+                    ${tasksArr.length > 0 ? `
+                        <div class="flex justify-between text-xs text-faint mb-2">
+                            <span>${doneTasks}/${tasksArr.length} tasks</span>
+                            <span>${phaseProgress}%</span>
+                        </div>
+                        <div style="height:3px;background:var(--border-muted);border-radius:2px;margin-bottom:12px;">
+                            <div style="width:${phaseProgress}%;height:100%;background:${status === 'completed' ? 'var(--success)' : 'var(--primary)'};border-radius:2px;transition:width 0.5s;"></div>
+                        </div>
+                        <div class="pt-2 border-t space-y-1">${tasksHtml}</div>
+                    ` : ''}
+                    ${status === 'locked' ? `<div class="text-xs text-faint mt-2 pt-2 border-t"><i class="fas fa-lock" style="margin-right:6px;"></i>Complete all tasks in the previous phase to unlock.</div>` : ''}
                 </div>
             </div>
         `;
     }).join('');
 
+    // Attach checkbox listeners
     container.querySelectorAll('.roadmap-task-check').forEach(cb => {
         cb.addEventListener('change', function() {
             const pi = parseInt(this.dataset.phase);
             const ti = parseInt(this.dataset.task);
             const roadmap = loadRoadmap();
-            if (!roadmap || !roadmap.phases) return;
+            if (!roadmap?.phases) return;
             roadmap.phases[pi].tasks[ti].done = this.checked;
             saveRoadmap(roadmap);
-            renderPhases(roadmap.phases);
             updateProfileRoadmap(roadmap);
-            showToast(this.checked ? '✓ Task marked complete — progress updated!' : 'Task reopened.', 'success');
+
+            // Check if whole phase just completed → unlock next phase
+            const phaseDone = roadmap.phases[pi].tasks.every(t => t.done);
+            if (phaseDone && pi + 1 < roadmap.phases.length) {
+                showToast(`Phase ${pi + 1} complete! Phase ${pi + 2} unlocked. 🎉`, 'success');
+            } else {
+                showToast(this.checked ? '✓ Task marked complete!' : 'Task reopened.', 'success');
+            }
+            renderPhases(roadmap.phases);
         });
     });
-}
-
-function escHtml(str) {
-    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function updateProfileRoadmap(roadmap) {
     const profile = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
+    const { pct, done, total } = computeProgress(roadmap.phases);
     profile.roadmapGoal = roadmap.goal || '';
-    profile.roadmapProgress = computeProgress(roadmap.phases);
-    const current = roadmap.phases ? roadmap.phases.find(p => (p.tasks || []).some(t => !t.done) || p.tasks.length === 0) : null;
-    profile.roadmapPhase = current ? current.title : (roadmap.phases?.length ? roadmap.phases[roadmap.phases.length-1].title : '');
+    profile.roadmapProgress = pct;
+    const firstIncomplete = (roadmap.phases || []).find(p => !(p.tasks || []).every(t => t.done));
+    profile.roadmapPhase = firstIncomplete?.title || (roadmap.phases?.length ? '✓ All Complete' : '');
     localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
 }
 
 function showDefaultRoadmap() {
-    const defaultRoadmap = {
-        goal: 'SWE Intern (Backend)',
+    return {
+        goal: 'SWE Intern - Backend',
         level: 'Intermediate (50–150 problems)',
         timeline: '8 weeks',
         phases: [
-            {
-                title: 'Phase 1: Foundation (Weeks 1–2)',
-                description: 'Arrays, Strings, Hash Maps, Two Pointers',
-                tags: ['15 Easy', '5 Medium'],
-                tasks: [
-                    { text: 'Master Array & String patterns', done: true },
-                    { text: 'Solve 10 Two-Pointer problems', done: true },
-                    { text: 'Hash Map fundamentals + practice', done: true }
-                ]
-            },
-            {
-                title: 'Phase 2: Core Algorithms (Weeks 3–5)',
-                description: 'Sliding Window, Binary Search, Linked Lists, Trees',
-                tags: ['20 Medium', '5 Hard'],
-                tasks: [
-                    { text: 'Master Binary Search Templates', done: true },
-                    { text: 'Solve 10 Tree Traversal Problems', done: false },
-                    { text: 'System Design: URL Shortener', done: false }
-                ]
-            },
-            {
-                title: 'Phase 3: Advanced Topics (Weeks 6–8)',
-                description: 'Dynamic Programming, Graphs, Backtracking',
-                tags: ['15 Medium', '10 Hard'],
-                tasks: [
-                    { text: 'DP patterns: 0/1 Knapsack, LCS, LIS', done: false },
-                    { text: 'Graph traversal: BFS, DFS, Dijkstra', done: false },
-                    { text: 'Backtracking: N-Queens, Subsets', done: false },
-                    { text: 'System Design: Rate Limiter', done: false }
-                ]
-            }
+            { title: 'Phase 1: Foundation (Weeks 1–2)', description: 'Arrays, Strings, Hash Maps, Two Pointers', tags: ['15 Easy', '5 Medium'],
+              tasks: [
+                { text: 'Master Array & String patterns — 15 Easy problems', done: true },
+                { text: 'Hash Map fundamentals — Two Sum, Group Anagrams, LRU Cache', done: true },
+                { text: 'Two Pointer technique — Valid Palindrome, Container With Water', done: true },
+              ]},
+            { title: 'Phase 2: Core Algorithms (Weeks 3–5)', description: 'Sliding Window, Binary Search, Linked Lists, Trees', tags: ['20 Medium', '5 Hard'],
+              tasks: [
+                { text: 'Binary Search — 8 problems including rotated arrays', done: true },
+                { text: 'Sliding Window — Max Subarray, Min Window Substring', done: false },
+                { text: 'Linked List — reverse, merge, detect cycle', done: false },
+                { text: 'Binary Trees — BFS, DFS, Level Order — 10 problems', done: false },
+              ]},
+            { title: 'Phase 3: Advanced Topics (Weeks 6–8)', description: 'Dynamic Programming, Graphs, Backtracking', tags: ['15 Medium', '10 Hard'],
+              tasks: [
+                { text: 'DP patterns — 0/1 Knapsack, LCS, LIS — 10 problems', done: false },
+                { text: 'Graph BFS, DFS, Dijkstra, Topological Sort', done: false },
+                { text: 'Backtracking — Subsets, Permutations, N-Queens', done: false },
+                { text: 'System Design — Design Twitter / URL Shortener', done: false },
+              ]},
         ]
     };
-    saveRoadmap(defaultRoadmap);
-    return defaultRoadmap;
 }
 
 async function generateAIRoadmap(goal, level, timeline) {
-    const btn = document.getElementById('generateRoadmapBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Generating...';
-
-    try {
-        const response = await fetch('/api/ai/roadmap', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ goal, level, timeline })
-        });
-        if (!response.ok) throw new Error('AI request failed');
-        const data = await response.json();
-        data.goal = goal;
-        data.level = level;
-        data.timeline = timeline;
-        saveRoadmap(data);
-        return data;
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-magic"></i> Generate AI Roadmap';
+    const res = await fetch('/api/ai/roadmap', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ goal, level, timeline })
+    });
+    if (res.status === 402) {
+        document.getElementById('quotaBanner').style.display = '';
+        return null;
     }
+    if (!res.ok) throw new Error('Failed');
+    return await res.json();
+}
+
+function openModal() {
+    const m = document.getElementById('roadmapModal');
+    m.style.display = 'flex';
+}
+function closeModal() {
+    document.getElementById('roadmapModal').style.display = 'none';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     let roadmap = loadRoadmap();
-    if (!roadmap) roadmap = showDefaultRoadmap();
+    if (!roadmap) {
+        roadmap = showDefaultRoadmap();
+        saveRoadmap(roadmap);
+    }
 
-    document.getElementById('roadmapTitle').textContent = `Goal: ${roadmap.goal || 'Software Engineer Intern'}`;
-    document.getElementById('roadmapMeta').textContent = `Level: ${roadmap.level || 'Intermediate'} · Timeline: ${roadmap.timeline || '8 weeks'}`;
+    document.getElementById('roadmapTitle').textContent = `Goal: ${roadmap.goal || 'SWE Intern'}`;
+    document.getElementById('roadmapMeta').textContent = `Level: ${roadmap.level || ''} · Timeline: ${roadmap.timeline || ''}`;
     document.getElementById('roadmapSubtitle').textContent = `Target: ${roadmap.goal || 'Software Engineer Intern'}`;
     renderPhases(roadmap.phases);
     updateProfileRoadmap(roadmap);
 
-    const modal = document.getElementById('roadmapModal');
-    document.getElementById('chooseRoadmapBtn').addEventListener('click', () => {
-        modal.classList.remove('hidden');
-        modal.style.display = 'flex';
+    document.getElementById('chooseRoadmapBtn').addEventListener('click', openModal);
+    document.getElementById('closeRoadmapModal').addEventListener('click', closeModal);
+    document.getElementById('roadmapModal').addEventListener('click', e => {
+        if (e.target === document.getElementById('roadmapModal')) closeModal();
     });
-    document.getElementById('closeRoadmapModal').addEventListener('click', () => {
-        modal.classList.add('hidden');
-        modal.style.display = 'none';
-    });
-    modal.addEventListener('click', e => {
-        if (e.target === modal) { modal.classList.add('hidden'); modal.style.display = 'none'; }
-    });
-
     document.getElementById('roadmapGoalSelect').addEventListener('change', function() {
         document.getElementById('customGoalGroup').style.display = this.value === 'custom' ? '' : 'none';
     });
@@ -309,37 +359,60 @@ document.addEventListener('DOMContentLoaded', () => {
         const level = document.getElementById('roadmapLevelSelect').value;
         const timeline = document.getElementById('roadmapTimelineSelect').value;
 
-        modal.classList.add('hidden');
-        modal.style.display = 'none';
-        document.getElementById('roadmapTitle').textContent = 'Generating your AI roadmap...';
+        const btn = document.getElementById('generateRoadmapBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Generating AI Roadmap...';
+        closeModal();
+        document.getElementById('roadmapTitle').textContent = 'Generating AI roadmap...';
+        document.getElementById('roadmapPhasesContainer').innerHTML = '<div class="text-center p-8"><i class="fas fa-circle-notch fa-spin text-primary" style="font-size:2rem;display:block;margin-bottom:12px;"></i><p class="text-sm text-muted">AI is crafting your personalised roadmap...</p></div>';
 
         try {
             const newRoadmap = await generateAIRoadmap(goal, level, timeline);
-            document.getElementById('roadmapTitle').textContent = `Goal: ${newRoadmap.goal}`;
-            document.getElementById('roadmapMeta').textContent = `Level: ${newRoadmap.level} · Timeline: ${newRoadmap.timeline}`;
-            document.getElementById('roadmapSubtitle').textContent = `Target: ${newRoadmap.goal}`;
-            renderPhases(newRoadmap.phases);
-            updateProfileRoadmap(newRoadmap);
-            showToast('AI Roadmap generated successfully!', 'success');
-        } catch(e) {
-            showToast('Could not generate roadmap. Please try again.', 'error');
+            const finalRoadmap = newRoadmap || showDefaultRoadmap();
+            finalRoadmap.goal = goal;
+            finalRoadmap.level = level;
+            finalRoadmap.timeline = timeline;
+            saveRoadmap(finalRoadmap);
             document.getElementById('roadmapTitle').textContent = `Goal: ${goal}`;
+            document.getElementById('roadmapMeta').textContent = `Level: ${level} · Timeline: ${timeline}`;
+            document.getElementById('roadmapSubtitle').textContent = `Target: ${goal}`;
+            renderPhases(finalRoadmap.phases);
+            updateProfileRoadmap(finalRoadmap);
+            if (newRoadmap) showToast('AI Roadmap generated successfully!', 'success');
+            else showToast('Default roadmap loaded (AI quota exceeded)', 'warning');
+        } catch(e) {
+            // Fallback
+            const fallback = showDefaultRoadmap();
+            fallback.goal = goal; fallback.level = level; fallback.timeline = timeline;
+            saveRoadmap(fallback);
+            renderPhases(fallback.phases);
+            showToast('Could not reach AI — default roadmap loaded.', 'error');
+            document.getElementById('roadmapTitle').textContent = `Goal: ${goal}`;
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-magic"></i> Generate AI Roadmap';
         }
     });
 
     document.getElementById('regenerateRoadmapBtn').addEventListener('click', async () => {
         const current = loadRoadmap();
-        if (!current || !current.goal) { showToast('Please choose a roadmap goal first.', 'error'); return; }
-        
+        if (!current?.goal) { openModal(); return; }
         const btn = document.getElementById('regenerateRoadmapBtn');
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Regenerating...';
-
         try {
             const newRoadmap = await generateAIRoadmap(current.goal, current.level, current.timeline);
-            renderPhases(newRoadmap.phases);
-            updateProfileRoadmap(newRoadmap);
-            showToast('Roadmap regenerated with fresh AI plan!', 'success');
+            if (newRoadmap) {
+                newRoadmap.goal = current.goal;
+                newRoadmap.level = current.level;
+                newRoadmap.timeline = current.timeline;
+                saveRoadmap(newRoadmap);
+                renderPhases(newRoadmap.phases);
+                updateProfileRoadmap(newRoadmap);
+                showToast('Roadmap regenerated with fresh AI plan!', 'success');
+            } else {
+                showToast('AI quota exceeded — roadmap unchanged.', 'warning');
+            }
         } catch(e) {
             showToast('Could not regenerate. Please try again.', 'error');
         } finally {

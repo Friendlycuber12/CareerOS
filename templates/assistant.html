@@ -175,12 +175,22 @@ async function sendMessage(text) {
         if (!res.ok) throw new Error('Request failed');
         const data = await res.json();
         removeTyping();
-        appendMessage('ai', formatAIText(data.reply), data.reply);
+        if (data.quota_error) {
+            appendMessage('ai', `<div style="padding:12px;background:var(--warning-muted);border:1px solid rgba(210,153,34,0.3);border-radius:10px;">
+                <div style="font-weight:600;color:var(--warning);margin-bottom:6px;"><i class="fas fa-exclamation-triangle"></i> OpenAI Quota Exceeded</div>
+                <div style="font-size:0.85rem;color:var(--text-muted);">Your OpenAI API key has run out of credits. To fix:<br>
+                1. Go to <a href="https://platform.openai.com/account/billing" target="_blank" style="color:var(--primary);">platform.openai.com/account/billing</a><br>
+                2. Add a payment method &amp; purchase credits<br>
+                3. Come back and try again — no code changes needed!</div>
+            </div>`, data.reply);
+        } else {
+            appendMessage('ai', formatAIText(data.reply), data.reply);
+        }
         chatHistory.push({ role: 'assistant', content: data.reply });
         saveChatHistory();
     } catch(e) {
         removeTyping();
-        appendMessage('ai', 'Sorry, I encountered an error. Please check your connection and try again.');
+        appendMessage('ai', '<em style="color:var(--text-muted);">Connection error. Please check your internet and try again.</em>');
     } finally {
         sendBtn.disabled = false;
         input.focus();

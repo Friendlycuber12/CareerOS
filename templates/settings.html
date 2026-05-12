@@ -498,15 +498,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Theme selection
+    // Theme selection — actually applies the theme
+    function applyTheme(theme) {
+        let resolved = theme;
+        if (theme === 'system') {
+            resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', resolved);
+        localStorage.setItem('careeros_theme', theme);
+    }
+
+    const savedTheme = localStorage.getItem('careeros_theme') || 'light';
+    const activeThemeBtn = document.querySelector(`.theme-btn[data-theme="${savedTheme}"]`);
+    if (activeThemeBtn) activeThemeBtn.classList.add('active-theme');
+
     document.querySelectorAll('.theme-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active-theme'));
             btn.classList.add('active-theme');
-            showToast(`${btn.dataset.theme.charAt(0).toUpperCase() + btn.dataset.theme.slice(1)} theme selected.`, 'success');
+            applyTheme(btn.dataset.theme);
+            const label = btn.dataset.theme.charAt(0).toUpperCase() + btn.dataset.theme.slice(1);
+            showToast(`${label} theme applied!`, 'success');
         });
     });
-    document.querySelector('.theme-btn[data-theme="light"]').classList.add('active-theme');
 
     // Bio char count
     document.getElementById('bioBio').addEventListener('input', updateBioCount);

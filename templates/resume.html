@@ -195,14 +195,29 @@ async function analyzeResume(file) {
 
     try {
         const res = await fetch('/api/ai/resume', { method: 'POST', body: formData });
-        if (!res.ok) throw new Error('Analysis failed');
         const data = await res.json();
+        if (res.status === 402 || data.error === 'quota') {
+            document.getElementById('analysisLoading').style.display = 'none';
+            document.getElementById('uploadDropzone').style.display = '';
+            showToast('OpenAI quota exceeded. Add credits at platform.openai.com/account/billing', 'error');
+            document.getElementById('uploadDropzone').innerHTML = `
+                <i class="fas fa-exclamation-triangle" style="font-size:2.5rem;color:var(--warning);margin-bottom:16px;display:block;"></i>
+                <h3 class="font-semibold mb-2" style="color:var(--warning);">OpenAI Quota Exceeded</h3>
+                <p class="text-sm text-muted mb-4">Your OpenAI API key has run out of credits. Add billing at <a href="https://platform.openai.com/account/billing" target="_blank" class="text-primary">platform.openai.com/account/billing</a>, then retry.</p>
+                <label class="btn btn-primary" style="cursor:pointer;">
+                    <i class="fas fa-sync-alt"></i> Retry Analysis
+                    <input type="file" accept=".pdf,.doc,.docx,.txt" style="display:none;" id="dropzoneInput">
+                </label>`;
+            setupFileInput(document.getElementById('dropzoneInput'));
+            return;
+        }
+        if (!res.ok) throw new Error('Analysis failed');
         renderResults(data);
         showToast('Resume analyzed successfully!', 'success');
     } catch (e) {
         document.getElementById('analysisLoading').style.display = 'none';
         document.getElementById('uploadDropzone').style.display = '';
-        showToast('Analysis failed. Please try again.', 'error');
+        showToast('Analysis failed. Check your connection and try again.', 'error');
     }
 }
 

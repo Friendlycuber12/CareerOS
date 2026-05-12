@@ -4,6 +4,19 @@
 <link rel="stylesheet" href="/static/css/dashboard.css">
 {% endblock %}
 
+{% block head_scripts %}
+<script>
+/* Apply theme immediately before render to avoid flash */
+(function() {
+    var theme = localStorage.getItem('careeros_theme') || 'light';
+    if (theme === 'system') {
+        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-theme', theme);
+})();
+</script>
+{% endblock %}
+
 {% block content %}
 <div class="dashboard-layout">
 
