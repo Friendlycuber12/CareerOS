@@ -175,12 +175,13 @@ async function sendMessage(text) {
         if (!res.ok) throw new Error('Request failed');
         const data = await res.json();
         removeTyping();
-        if (data.quota_error) {
+        if (data.quota_error || (data.error && data.error === 'quota')) {
             appendMessage('ai', `<div style="padding:12px;background:var(--warning-muted);border:1px solid rgba(210,153,34,0.3);border-radius:10px;">
-                <div style="font-weight:600;color:var(--warning);margin-bottom:6px;"><i class="fas fa-exclamation-triangle"></i> OpenAI Quota Exceeded</div>
-                <div style="font-size:0.85rem;color:var(--text-muted);">Your OpenAI API key has run out of credits. To fix:<br>
-                1. Go to <a href="https://platform.openai.com/account/billing" target="_blank" style="color:var(--primary);">platform.openai.com/account/billing</a><br>
-                2. Add a payment method &amp; purchase credits<br>
+                <div style="font-weight:600;color:var(--warning);margin-bottom:6px;"><i class="fas fa-exclamation-triangle"></i> Gemini API Daily Quota Reached</div>
+                <div style="font-size:0.85rem;color:var(--text-muted);">The free tier allows 1,500 requests/day. Your quota resets at midnight Pacific Time.<br><br>
+                To get unlimited access:<br>
+                1. Go to <a href="https://console.cloud.google.com/billing" target="_blank" style="color:var(--primary);">console.cloud.google.com/billing</a><br>
+                2. Enable billing on your Google Cloud project<br>
                 3. Come back and try again — no code changes needed!</div>
             </div>`, data.reply);
         } else {

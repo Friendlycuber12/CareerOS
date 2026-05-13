@@ -199,11 +199,11 @@ async function analyzeResume(file) {
         if (res.status === 402 || data.error === 'quota') {
             document.getElementById('analysisLoading').style.display = 'none';
             document.getElementById('uploadDropzone').style.display = '';
-            showToast('OpenAI quota exceeded. Add credits at platform.openai.com/account/billing', 'error');
+            showToast('Gemini free tier quota reached for today. Resets at midnight PT.', 'error');
             document.getElementById('uploadDropzone').innerHTML = `
                 <i class="fas fa-exclamation-triangle" style="font-size:2.5rem;color:var(--warning);margin-bottom:16px;display:block;"></i>
-                <h3 class="font-semibold mb-2" style="color:var(--warning);">OpenAI Quota Exceeded</h3>
-                <p class="text-sm text-muted mb-4">Your OpenAI API key has run out of credits. Add billing at <a href="https://platform.openai.com/account/billing" target="_blank" class="text-primary">platform.openai.com/account/billing</a>, then retry.</p>
+                <h3 class="font-semibold mb-2" style="color:var(--warning);">Gemini Daily Quota Reached</h3>
+                <p class="text-sm text-muted mb-4">The free tier allows 1,500 requests/day. Your quota resets at midnight Pacific Time. To remove limits, enable billing at <a href="https://console.cloud.google.com/billing" target="_blank" class="text-primary">console.cloud.google.com/billing</a>.</p>
                 <label class="btn btn-primary" style="cursor:pointer;">
                     <i class="fas fa-sync-alt"></i> Retry Analysis
                     <input type="file" accept=".pdf,.doc,.docx,.txt" style="display:none;" id="dropzoneInput">

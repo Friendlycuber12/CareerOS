@@ -1,9 +1,8 @@
 import json
 import os
 import urllib.request
-import urllib.error
 
-from fastapi import Depends, FastAPI, File, HTTPException, Request, UploadFile, status
+from fastapi import Depends, FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -19,41 +18,92 @@ app = FastAPI(title="CareerOS API")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-# ── OpenAI client (lazy) ──────────────────────────────────────────────────────
-_openai_client = None
+# ── Gemini client (lazy) ──────────────────────────────────────────────────────
+_gemini_client = None
 
-def get_openai():
-    global _openai_client
-    if _openai_client is None:
-        from openai import OpenAI
-        api_key = os.getenv("OPENAI_API_KEY")
+def get_gemini():
+    global _gemini_client
+    if _gemini_client is None:
+        from google import genai
+        api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
-            raise HTTPException(status_code=503, detail="OPENAI_API_KEY not set.")
-        _openai_client = OpenAI(api_key=api_key)
-    return _openai_client
+            raise HTTPException(status_code=503, detail="GEMINI_API_KEY not configured.")
+        _gemini_client = genai.Client(api_key=api_key)
+    return _gemini_client
 
-def call_openai(messages, max_tokens=1200, temperature=0.7, json_mode=False):
-    """Call OpenAI with error handling. Returns (text, error_msg)."""
+def call_gemini(prompt: str, system: str = "", max_tokens: int = 1500,
+                temperature: float = 0.7, json_mode: bool = False):
+    """Call Gemini and return (text, error_msg)."""
     try:
-        client = get_openai()
-        kwargs = dict(
-            model="gpt-4o-mini",
-            messages=messages,
-            max_tokens=max_tokens,
+        from google import genai
+        from google.genai import types
+
+        client = get_gemini()
+
+        config_kwargs = dict(
             temperature=temperature,
+            max_output_tokens=max_tokens,
         )
+        if system:
+            config_kwargs["system_instruction"] = system
         if json_mode:
-            kwargs["response_format"] = {"type": "json_object"}
-        resp = client.chat.completions.create(**kwargs)
-        return resp.choices[0].message.content, None
+            config_kwargs["response_mime_type"] = "application/json"
+
+        config = types.GenerateContentConfig(**config_kwargs)
+
+        resp = client.models.generate_content(
+            model="gemini-2.0-flash",
+            config=config,
+            contents=prompt,
+        )
+        return resp.text, None
     except Exception as e:
         err = str(e)
-        if "insufficient_quota" in err or "quota" in err.lower():
+        if "quota" in err.lower() or "429" in err or "RESOURCE_EXHAUSTED" in err:
             return None, "quota"
+        if "API_KEY_INVALID" in err or "invalid" in err.lower():
+            return None, "invalid_key"
+        return None, err
+
+def call_gemini_chat(messages: list[dict], system: str = "",
+                     max_tokens: int = 1500, temperature: float = 0.7):
+    """Call Gemini with chat history and return (text, error_msg)."""
+    try:
+        from google import genai
+        from google.genai import types
+
+        client = get_gemini()
+
+        # Build contents from history
+        contents = []
+        for m in messages:
+            role = "user" if m["role"] == "user" else "model"
+            contents.append(
+                types.Content(role=role, parts=[types.Part(text=m["content"])])
+            )
+
+        config = types.GenerateContentConfig(
+            system_instruction=system if system else None,
+            temperature=temperature,
+            max_output_tokens=max_tokens,
+        )
+
+        resp = client.models.generate_content(
+            model="gemini-2.0-flash",
+            config=config,
+            contents=contents,
+        )
+        return resp.text, None
+    except Exception as e:
+        err = str(e)
+        if "quota" in err.lower() or "429" in err or "RESOURCE_EXHAUSTED" in err:
+            return None, "quota"
+        if "API_KEY_INVALID" in err or "invalid" in err.lower():
+            return None, "invalid_key"
         return None, err
 
 
-# ── Pydantic schemas ────────────────────────────────────────────────────────
+# ── Pydantic schemas ───────────────────────────────────────────────────────
 class ChatRequest(BaseModel):
     message: str
     history: list[dict] = []
@@ -144,7 +194,7 @@ async def read_profile(request: Request):
     return templates.TemplateResponse(request=request, name="profile.html", context=get_context(request, "Profile - CareerOS"))
 
 
-# ── Application CRUD ─────────────────────────────────────────────────────
+# ── Application CRUD ──────────────────────────────────────────────────────
 @app.get("/api/health/db")
 def read_database_health():
     return database_health()
@@ -191,9 +241,8 @@ def delete_application(application_id: int, db: Session = Depends(get_ready_db))
         raise HTTPException(status_code=500, detail="Could not delete.") from exc
 
 
-# ── Coding Stats Proxy ───────────────────────────────────────────────────
+# ── Coding Stats Proxy ────────────────────────────────────────────────────
 def fetch_url(url: str, timeout: int = 8):
-    """Fetch a URL and return parsed JSON or None."""
     try:
         req = urllib.request.Request(url, headers={"User-Agent": "CareerOS/1.0"})
         with urllib.request.urlopen(req, timeout=timeout) as r:
@@ -217,11 +266,9 @@ async def coding_stats(lc: str = "", cf: str = ""):
                 "totalQuestions": data.get("totalQuestions", 3000),
                 "acceptanceRate": round(data.get("acceptanceRate", 0), 1),
                 "ranking": data.get("ranking", 0),
-                "contributionPoints": data.get("contributionPoints", 0),
                 "profileUrl": f"https://leetcode.com/u/{lc}/",
             }
         else:
-            # Try alternate API
             data2 = fetch_url(f"https://alfa-leetcode-api.onrender.com/userProfile/{lc}")
             if data2 and not data2.get("errors"):
                 result["leetcode"] = {
@@ -260,20 +307,23 @@ async def coding_stats(lc: str = "", cf: str = ""):
     return result
 
 
-# ── AI Endpoints ─────────────────────────────────────────────────────────
+# ── AI Error helpers ──────────────────────────────────────────────────────
+def ai_error_response(err: str, feature: str = "AI"):
+    if err == "quota":
+        return JSONResponse(status_code=429, content={
+            "error": "quota",
+            "message": f"{feature} quota exceeded. Check your Gemini API quota at console.cloud.google.com"
+        })
+    if err == "invalid_key":
+        return JSONResponse(status_code=401, content={
+            "error": "invalid_key",
+            "message": "Invalid Gemini API key. Please check your GEMINI_API_KEY secret."
+        })
+    raise HTTPException(status_code=500, detail=f"{feature} error: {err}")
 
-QUOTA_MSG = (
-    "⚠️ **OpenAI API Quota Exceeded**\n\n"
-    "Your OpenAI API key has run out of credits. To fix this:\n"
-    "1. Go to [platform.openai.com/account/billing](https://platform.openai.com/account/billing)\n"
-    "2. Add a payment method and purchase credits\n"
-    "3. Come back and try again — no code changes needed!\n\n"
-    "**In the meantime**, here's a quick answer: "
-)
 
-@app.post("/api/ai/chat")
-async def ai_chat(payload: ChatRequest):
-    system_prompt = """You are CareerOS AI — an expert internship preparation coach for software engineering students.
+# ── AI Chat ───────────────────────────────────────────────────────────────
+CHAT_SYSTEM = """You are CareerOS AI — an expert internship preparation coach for software engineering students.
 
 Your expertise:
 - Data Structures & Algorithms (with Python/Java/C++ code examples)
@@ -283,24 +333,28 @@ Your expertise:
 - Resume writing and ATS optimization
 - Career strategy and company-specific tips (FAANG, startups)
 
-Style: concise but thorough, use code blocks for code, explain WHY behind concepts, give time/space complexity, be encouraging."""
+Style: concise but thorough, use markdown code blocks for code, explain WHY behind concepts, give time/space complexity, be encouraging."""
 
-    messages = [{"role": "system", "content": system_prompt}]
-    for h in payload.history[-10:]:
+@app.post("/api/ai/chat")
+async def ai_chat(payload: ChatRequest):
+    messages = []
+    for h in payload.history[-12:]:
         if h.get("role") in ("user", "assistant") and h.get("content"):
-            messages.append({"role": h["role"], "content": h["content"]})
+            role = "user" if h["role"] == "user" else "model"
+            messages.append({"role": role, "content": h["content"]})
     messages.append({"role": "user", "content": payload.message})
 
-    text, err = call_openai(messages, max_tokens=1500)
+    text, err = call_gemini_chat(messages, system=CHAT_SYSTEM, max_tokens=1500)
     if text:
         return {"reply": text}
-    if err == "quota":
-        return {"reply": QUOTA_MSG + "I'm unable to answer right now — please add OpenAI credits to enable the AI Assistant.", "quota_error": True}
-    raise HTTPException(status_code=500, detail=f"AI error: {err}")
+    return ai_error_response(err, "Chat AI")
 
 
+# ── AI Roadmap ────────────────────────────────────────────────────────────
 @app.post("/api/ai/roadmap")
 async def ai_roadmap(payload: RoadmapRequest):
+    num_phases = 3 if "4 week" in payload.timeline else 5 if "6 month" in payload.timeline else 4
+
     prompt = f"""Generate a detailed internship preparation roadmap.
 
 Profile:
@@ -308,58 +362,53 @@ Profile:
 - Current Level: {payload.level}
 - Timeline: {payload.timeline}
 
-Return ONLY valid JSON (no markdown, no extra text) in this EXACT structure:
+Return ONLY valid JSON with this EXACT structure (no markdown, no extra text):
 {{
   "phases": [
     {{
       "title": "Phase 1: Foundation (Weeks 1-2)",
-      "description": "Arrays, Strings, Hash Maps, Two Pointers — core building blocks",
+      "description": "Brief description of this phase",
       "tags": ["15 Easy", "5 Medium"],
       "tasks": [
-        {{"text": "Master Array & String patterns — solve 10 problems", "done": false}},
-        {{"text": "Hash Map fundamentals + practice 8 problems", "done": false}},
-        {{"text": "Two Pointer technique — 6 problems", "done": false}}
-      ]
-    }},
-    {{
-      "title": "Phase 2: Core Algorithms (Weeks 3-5)",
-      "description": "Sliding Window, Binary Search, Linked Lists, Trees",
-      "tags": ["20 Medium", "5 Hard"],
-      "tasks": [
-        {{"text": "Binary Search — 8 problems including rotated arrays", "done": false}},
-        {{"text": "Sliding Window — 6 problems", "done": false}},
-        {{"text": "Linked List — reverse, merge, cycle detection", "done": false}},
-        {{"text": "Binary Trees — BFS, DFS, 10 problems", "done": false}}
+        {{"text": "Specific actionable task with problem count", "done": false}}
       ]
     }}
   ]
 }}
 
 Requirements:
-- Generate exactly {3 if '4 weeks' in payload.timeline else 4 if '8 weeks' in payload.timeline else 5} phases matching the {payload.timeline} timeline
-- Each phase: 3-5 specific, actionable tasks with problem counts
-- Tailor content specifically to: {payload.goal}
-- For SWE roles: include DSA progression + System Design in later phases
-- For Data Science: include ML, Python, Statistics
-- For PM: include product thinking, case studies, metrics
-- Progress: Easy → Medium → Hard
-- Include CS subjects (OS, DBMS, Networks) appropriate for the role"""
+- Generate exactly {num_phases} phases matching the {payload.timeline} timeline
+- Each phase must have 3-5 specific, actionable tasks with problem counts
+- Tailor ALL content specifically to: {payload.goal}
+- For SWE roles: DSA progression (Easy → Medium → Hard) + System Design in later phases
+- For Data Science: Python, ML algorithms, Statistics, SQL, Pandas
+- For DevOps: Linux, Docker, Kubernetes, CI/CD, Cloud (AWS/GCP)
+- For PM: Product thinking, metrics, case studies, SQL, user research
+- Include relevant CS subjects (OS, DBMS, Networks) in the final phase
+- Make task descriptions specific and actionable (not generic)"""
 
-    text, err = call_openai([{"role": "user", "content": prompt}], max_tokens=2000, json_mode=True)
+    text, err = call_gemini(prompt, max_tokens=2000, temperature=0.7, json_mode=True)
     if text:
         try:
             return json.loads(text)
         except Exception:
-            pass
+            # Try to extract JSON if wrapped in markdown
+            import re
+            m = re.search(r'\{[\s\S]+\}', text)
+            if m:
+                try:
+                    return json.loads(m.group())
+                except Exception:
+                    pass
 
-    if err == "quota":
-        return JSONResponse(status_code=402, content={"error": "quota", "message": "OpenAI quota exceeded. Please add credits at platform.openai.com/account/billing"})
+    if err in ("quota", "invalid_key"):
+        return JSONResponse(status_code=429 if err == "quota" else 401,
+                            content={"error": err, "message": f"Gemini API error: {err}"})
 
-    # Fallback: return a goal-appropriate default roadmap
     return _fallback_roadmap(payload.goal, payload.timeline)
 
+
 def _fallback_roadmap(goal: str, timeline: str):
-    """Return a static fallback roadmap when AI is unavailable."""
     return {
         "phases": [
             {
@@ -368,8 +417,8 @@ def _fallback_roadmap(goal: str, timeline: str):
                 "tags": ["15 Easy", "5 Medium"],
                 "tasks": [
                     {"text": "Master Array & String patterns — solve 15 Easy problems", "done": False},
-                    {"text": "Hash Map fundamentals — 8 problems (Two Sum, Group Anagrams)", "done": False},
-                    {"text": "Two Pointer technique — 6 problems (Valid Palindrome, Container With Water)", "done": False},
+                    {"text": "Hash Map fundamentals — Two Sum, Group Anagrams, LRU Cache", "done": False},
+                    {"text": "Two Pointer technique — Valid Palindrome, Container With Water", "done": False},
                 ]
             },
             {
@@ -378,9 +427,9 @@ def _fallback_roadmap(goal: str, timeline: str):
                 "tags": ["20 Medium", "5 Hard"],
                 "tasks": [
                     {"text": "Binary Search — 8 problems including rotated arrays", "done": False},
-                    {"text": "Sliding Window — 6 problems (Max Subarray, Min Window)", "done": False},
+                    {"text": "Sliding Window — Max Subarray, Min Window Substring", "done": False},
                     {"text": "Linked List — reverse, merge, detect cycle", "done": False},
-                    {"text": "Binary Trees — BFS, DFS, Level Order, 10 problems", "done": False},
+                    {"text": "Binary Trees — BFS, DFS, Level Order — 10 problems", "done": False},
                 ]
             },
             {
@@ -388,10 +437,10 @@ def _fallback_roadmap(goal: str, timeline: str):
                 "description": "Dynamic Programming, Graphs, Backtracking",
                 "tags": ["15 Medium", "10 Hard"],
                 "tasks": [
-                    {"text": "DP patterns — 0/1 Knapsack, LCS, LIS (10 problems)", "done": False},
-                    {"text": "Graph traversal — BFS, DFS, Dijkstra's algorithm", "done": False},
+                    {"text": "DP patterns — 0/1 Knapsack, LCS, LIS — 10 problems", "done": False},
+                    {"text": "Graph BFS, DFS, Dijkstra, Topological Sort", "done": False},
                     {"text": "Backtracking — Subsets, Permutations, N-Queens", "done": False},
-                    {"text": "System Design basics — URL Shortener, Design Twitter Feed", "done": False},
+                    {"text": "System Design — Design Twitter / URL Shortener", "done": False},
                 ]
             },
             {
@@ -402,7 +451,7 @@ def _fallback_roadmap(goal: str, timeline: str):
                     {"text": "OS concepts — Processes, Threads, Memory Management, Deadlocks", "done": False},
                     {"text": "DBMS — SQL, Indexing, Transactions, ACID properties", "done": False},
                     {"text": "Computer Networks — HTTP, TCP/IP, DNS, TLS", "done": False},
-                    {"text": "Behavioral prep — 10 STAR stories for leadership, teamwork, failures", "done": False},
+                    {"text": "Behavioral prep — 10 STAR stories (leadership, teamwork, failures)", "done": False},
                     {"text": "Mock interview — complete 3 full DSA mock sessions", "done": False},
                 ]
             },
@@ -410,6 +459,7 @@ def _fallback_roadmap(goal: str, timeline: str):
     }
 
 
+# ── AI Resume ─────────────────────────────────────────────────────────────
 @app.post("/api/ai/resume")
 async def ai_resume(file: UploadFile = File(...)):
     content = await file.read()
@@ -418,7 +468,8 @@ async def ai_resume(file: UploadFile = File(...)):
 
     if filename.lower().endswith(".pdf"):
         try:
-            import io, PyPDF2
+            import io
+            import PyPDF2
             reader = PyPDF2.PdfReader(io.BytesIO(content))
             for page in reader.pages:
                 resume_text += page.extract_text() or ""
@@ -432,141 +483,151 @@ async def ai_resume(file: UploadFile = File(...)):
 
     resume_text = resume_text[:5000]
 
-    prompt = f"""You are an expert ATS resume analyzer. Analyze this resume for software engineering internship roles.
+    prompt = f"""You are an expert ATS resume analyzer for software engineering internship roles.
 
-Return ONLY valid JSON (no markdown) with this EXACT structure:
+Analyze this resume and return ONLY valid JSON (no markdown) with this EXACT structure:
 {{
   "ats_score": <integer 0-100>,
   "metrics": [
-    {{"name": "Action Verbs", "status": "strong", "description": "Strong action verbs used in most bullet points"}},
-    {{"name": "Quantified Impact", "status": "improve", "description": "Add metrics — only 3 bullets have numbers"}},
-    {{"name": "Keyword Match", "status": "weak", "description": "Missing: Docker, CI/CD, REST APIs, Microservices"}},
-    {{"name": "Formatting", "status": "strong", "description": "Clean single-column layout, ATS-friendly"}},
+    {{"name": "Action Verbs", "status": "strong", "description": "Strong verbs used in most bullets"}},
+    {{"name": "Quantified Impact", "status": "improve", "description": "Only 3/10 bullets have numbers"}},
+    {{"name": "Keyword Match", "status": "weak", "description": "Missing: Docker, CI/CD, REST APIs"}},
+    {{"name": "Formatting", "status": "strong", "description": "Clean single-column ATS-friendly layout"}},
     {{"name": "Contact Info", "status": "strong", "description": "Name, email, phone, LinkedIn/GitHub present"}},
-    {{"name": "Skills Section", "status": "good", "description": "Technical skills listed, consider categorizing"}}
+    {{"name": "Skills Section", "status": "good", "description": "Good coverage, consider categorizing"}}
   ],
   "skills": ["Python", "JavaScript", "React", "SQL"],
-  "missing_keywords": ["Docker", "Kubernetes", "CI/CD", "REST API", "Agile", "Git"],
+  "missing_keywords": ["Docker", "Kubernetes", "CI/CD", "REST API", "Agile"],
   "suggestions": [
-    {{"title": "Add quantified impact to every bullet", "detail": "Hiring managers scan for numbers. Aim for 80%+ of bullets to have a metric.", "example": "Before: 'Built API endpoints' → After: 'Built 8 REST API endpoints serving 50K+ daily requests'"}},
-    {{"title": "Include missing DevOps keywords", "detail": "Top ATS systems screen for Docker, CI/CD, Git in SWE roles.", "example": "Add to skills: Docker, GitHub Actions, CI/CD, REST APIs"}},
-    {{"title": "Strengthen project descriptions", "detail": "Each project should state the problem, your solution, and measurable impact.", "example": "Add: 'Reduced page load time by 40% by implementing lazy loading and code splitting'"}}
+    {{
+      "title": "Add quantified impact to every bullet",
+      "detail": "Hiring managers scan for numbers. Aim for 80%+ bullets with metrics.",
+      "example": "Before: 'Built API endpoints' → After: 'Built 8 REST API endpoints serving 50K+ daily requests'"
+    }}
   ]
 }}
 
-Status values: "strong", "good", "great", "perfect", "improve", "weak"
+Status values must be one of: "strong", "good", "great", "perfect", "improve", "weak"
+Provide 3-5 improvement suggestions specific to THIS resume.
+Be specific and realistic based on the actual content below.
 
-Analyze this resume:
+Resume:
 ---
 {resume_text}
----
+---"""
 
-Be specific and realistic based on the actual content."""
-
-    text, err = call_openai([{"role": "user", "content": prompt}], max_tokens=1800, temperature=0.2, json_mode=True)
+    text, err = call_gemini(prompt, max_tokens=1800, temperature=0.2, json_mode=True)
     if text:
         try:
             return json.loads(text)
         except Exception:
-            pass
+            import re
+            m = re.search(r'\{[\s\S]+\}', text)
+            if m:
+                try:
+                    return json.loads(m.group())
+                except Exception:
+                    pass
 
-    if err == "quota":
-        return JSONResponse(status_code=402, content={"error": "quota", "message": "OpenAI quota exceeded. Add credits at platform.openai.com/account/billing"})
-
-    raise HTTPException(status_code=500, detail=f"Analysis failed: {err}")
+    return ai_error_response(err, "Resume AI")
 
 
-INTERVIEW_PROMPTS = {
-    "dsa": "LeetCode-style Data Structures & Algorithms coding interview. Ask a real problem with constraints and example I/O. Expect working code with time/space complexity.",
-    "system_design": "System Design interview. Ask to design a real system (Twitter feed, URL shortener, Uber, Netflix). Expect architecture, components, trade-offs.",
-    "os": "Operating Systems interview covering processes, threads, scheduling algorithms, memory management, virtual memory, deadlocks, synchronization primitives (mutex, semaphore).",
-    "dbms": "Database Management Systems interview covering SQL queries, normalization, indexing strategies, transactions, ACID, joins, query optimization, NoSQL vs SQL trade-offs.",
-    "networks": "Computer Networks interview covering OSI model, TCP vs UDP, HTTP/HTTPS, TLS handshake, DNS resolution, REST APIs, WebSockets, CDN, load balancing.",
-    "behavioral": "Behavioral interview using STAR method. Ask about specific situations involving leadership, conflict resolution, failures, teamwork, impact.",
+# ── AI Interview ──────────────────────────────────────────────────────────
+INTERVIEW_CONTEXTS = {
+    "dsa": "LeetCode-style Data Structures & Algorithms. Ask a real problem with constraints and example I/O. Expect working code with time/space complexity analysis.",
+    "system_design": "System Design. Ask to design a real-world system (Twitter feed, URL shortener, Uber, Netflix). Expect architecture, components, data models, and trade-offs.",
+    "os": "Operating Systems. Cover processes, threads, scheduling algorithms, memory management, virtual memory, deadlocks, synchronization (mutex, semaphore, monitor).",
+    "dbms": "Database Management Systems. Cover SQL queries, normalization, indexing (B-trees), transactions, ACID properties, joins, query optimization, NoSQL vs SQL.",
+    "networks": "Computer Networks. Cover OSI model, TCP vs UDP, HTTP/HTTPS, TLS handshake, DNS resolution, REST APIs, WebSockets, CDN, load balancing, subnetting.",
+    "behavioral": "Behavioral interview using the STAR method. Ask about specific real situations involving leadership, conflict resolution, failures, teamwork, and measurable impact.",
 }
 
 @app.post("/api/ai/interview")
 async def ai_interview(payload: InterviewRequest):
-    cat_desc = INTERVIEW_PROMPTS.get(payload.category, "general software engineering interview")
+    ctx = INTERVIEW_CONTEXTS.get(payload.category, "general software engineering interview")
 
     if payload.action == "start":
-        prompt = f"""You are a senior engineer at a top tech company (Google/Meta/Amazon) conducting a mock {payload.category.upper()} interview.
+        prompt = f"""You are a senior engineer at Google/Meta/Amazon conducting a live {payload.category.upper()} mock interview.
 
-Category context: {cat_desc}
+Context: {ctx}
 
-Start with a professional greeting, then ask ONE specific question (question #{payload.question_count + 1}).
-- DSA: Give a real problem with example inputs, expected output, constraints
-- System Design: Set the scenario, scale requirements, constraints clearly
-- OS/DBMS/Networks: Ask a concept question that tests deep understanding
-- Behavioral: Ask about a specific real situation
+Start with a warm professional greeting (1-2 sentences), then immediately ask Question #{payload.question_count + 1}.
 
-Be encouraging but realistic. After the question, say: "Take your time. Think out loud as you work through it."
+For DSA: State the problem clearly with example inputs/outputs and constraints. End with "Take your time. Think out loud as you approach it."
+For System Design: Describe the system scenario and scale requirements clearly. End with "Start with clarifying questions, then walk me through your architecture."
+For OS/DBMS/Networks: Ask a specific conceptual question that tests deep understanding.
+For Behavioral: Ask about a specific past situation (not hypothetical).
 
-Do NOT give hints or solutions yet."""
+Keep it natural and encouraging. Do NOT give hints or solutions."""
 
     elif payload.action == "answer":
-        prompt = f"""You are conducting a {payload.category.upper()} mock interview. The candidate answered:
+        prompt = f"""You are conducting a {payload.category.upper()} mock interview. Evaluate this candidate answer:
 
 "{payload.answer}"
 
-Give structured feedback in this format:
+Provide structured feedback:
+
 **✅ What you got right:**
-[specific strengths]
+[List specific strengths from their answer]
 
-**⚠️ Areas to improve:**
-[specific gaps, missed edge cases, better approaches]
+**⚠️ What to improve:**
+[Specific gaps, missed edge cases, or better approaches]
 
-**💡 Ideal answer:**
-[complete model answer with code if applicable, time/space complexity]
+**💡 Model answer:**
+[Complete ideal answer — include working code with complexity analysis for DSA, full architecture for system design, or thorough explanation for theory questions]
 
-**Score: X/10** — [brief justification]
+**Score: X/10** — [1-sentence justification]
 
-After feedback, say: "Ready for the next question? Press 'Next Question' or type your answer."
+After the score, add: "Ready for the next question? Click 'Next Question' or keep discussing."
 
-Keep feedback under 250 words. Be constructive and educational."""
+Be honest, constructive, and educational. Keep under 300 words."""
 
     elif payload.action == "next":
         prompt = f"""You are conducting a {payload.category.upper()} mock interview.
 
-Context: {cat_desc}
+Context: {ctx}
 
-Ask the NEXT question (#{payload.question_count + 1}). Make it:
-- Different topic/pattern from previous questions
-- Appropriate difficulty (progressively harder: easy → medium → hard)
-- Realistic and interview-relevant
+Ask Question #{payload.question_count + 1}. Make it:
+- A DIFFERENT topic/pattern from previous questions
+- Appropriately harder (questions get progressively more challenging)
+- Realistic and commonly asked at top tech companies
 
-For DSA: Give a different algorithm/pattern with constraints and examples.
-For others: Vary the sub-topic.
+For DSA: Different algorithm/data structure with clear constraints and examples.
+For System Design: A different system type.
+For theory: A different sub-topic.
+For Behavioral: A different life situation (teamwork vs leadership vs failure).
 
-Just ask the question directly. Do NOT give hints."""
+Ask the question directly. No preamble. No hints."""
 
     else:
-        raise HTTPException(status_code=400, detail="Invalid action")
+        raise HTTPException(status_code=400, detail="Invalid action. Use: start, answer, next")
 
-    text, err = call_openai([{"role": "user", "content": prompt}], max_tokens=700, temperature=0.8)
+    text, err = call_gemini(prompt, max_tokens=700, temperature=0.75)
     if text:
         return {"message": text, "next_question": payload.action == "answer"}
 
-    if err == "quota":
-        quota_resp = {
-            "start": f"⚠️ **OpenAI quota exceeded.** I can't start the interview right now.\n\nTo fix: Add credits at [platform.openai.com/account/billing](https://platform.openai.com/account/billing)\n\n**Sample {payload.category.upper()} question while you fix this:**\n\n" + _sample_question(payload.category),
-            "answer": "⚠️ **OpenAI quota exceeded.** Cannot provide feedback right now. Please add OpenAI credits to continue.",
-            "next": "⚠️ **OpenAI quota exceeded.** Cannot load next question. Please add OpenAI credits.\n\n**Sample question:**\n\n" + _sample_question(payload.category),
+    if err in ("quota", "invalid_key"):
+        sample = _sample_question(payload.category)
+        fallback = {
+            "start": f"👋 Welcome to your {payload.category.upper()} mock interview!\n\n⚠️ **Gemini API issue** ({err}). Showing a sample question:\n\n{sample}",
+            "answer": f"⚠️ **Gemini API issue** ({err}). Unable to evaluate your answer right now.",
+            "next": f"⚠️ **Gemini API issue** ({err}). Here's a sample next question:\n\n{sample}",
         }
-        return {"message": quota_resp.get(payload.action, "OpenAI quota exceeded."), "next_question": False}
+        return {"message": fallback.get(payload.action, "AI unavailable."), "next_question": False}
 
     raise HTTPException(status_code=500, detail=f"Interview AI error: {err}")
 
+
 def _sample_question(category: str) -> str:
     samples = {
-        "dsa": "**Two Sum** — Given an array of integers `nums` and an integer `target`, return indices of the two numbers such that they add up to target.\n\nExample: `nums = [2,7,11,15], target = 9` → `[0,1]`\n\nConstraints: 2 ≤ nums.length ≤ 10⁴, -10⁹ ≤ nums[i] ≤ 10⁹\n\nWhat's your approach? What's the time and space complexity?",
-        "system_design": "**Design a URL Shortener** (like bit.ly)\n\nRequirements:\n- Shorten long URLs to 7-character codes\n- Redirect users when they visit the short URL\n- Handle 100M URLs, 1B redirects/day\n\nWalk me through your system architecture.",
-        "os": "**Explain the difference between a process and a thread.** When would you use multiple processes vs multiple threads? What are the trade-offs in terms of memory, communication, and fault isolation?",
-        "dbms": "**What is database indexing?** Explain how a B-tree index works internally, when you would and wouldn't add an index, and what a composite index is.",
-        "networks": "**What happens when you type google.com in a browser?** Walk me through every step: DNS resolution, TCP handshake, TLS, HTTP request, and rendering.",
-        "behavioral": "**Tell me about a time you faced a significant technical challenge.** What was the situation, what was your role, what actions did you take, and what was the result?",
+        "dsa": "**Two Sum** — Given `nums = [2,7,11,15]` and `target = 9`, return `[0,1]`.\n\nConstraints: 2 ≤ n ≤ 10⁴, -10⁹ ≤ nums[i] ≤ 10⁹, exactly one solution exists.\n\nWhat's your approach and time/space complexity?",
+        "system_design": "**Design a URL Shortener** (bit.ly)\n\nRequirements: Shorten URLs to 7-character codes, redirect on visit, handle 100M URLs and 1B redirects/day.\n\nWalk me through your full system architecture.",
+        "os": "**Explain the difference between a process and a thread.** When would you use multiple processes vs threads? Discuss memory, communication overhead, and fault isolation trade-offs.",
+        "dbms": "**What is database indexing?** Explain how a B-tree index works internally, when to add vs avoid indexes, and what a composite index is with an example.",
+        "networks": "**What happens when you type google.com in a browser?** Walk through every step: DNS resolution, TCP handshake, TLS negotiation, HTTP request, and page rendering.",
+        "behavioral": "**Tell me about a time you faced a significant technical challenge on a project.** Use the STAR format: Situation, Task, Action, Result.",
     }
-    return samples.get(category, "Tell me about your most challenging technical project and how you overcame obstacles.")
+    return samples.get(category, "Tell me about your most challenging technical project and how you overcame the obstacles.")
 
 
 if __name__ == "__main__":
